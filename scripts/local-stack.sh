@@ -76,6 +76,14 @@ auth_env=(
   GOTRUE_API_HOST=127.0.0.1 PORT=9999
   GOTRUE_EXTERNAL_EMAIL_ENABLED=true GOTRUE_MAILER_AUTOCONFIRM=true GOTRUE_DISABLE_SIGNUP=false
   GOTRUE_RATE_LIMIT_EMAIL_SENT=1000 GOTRUE_LOG_LEVEL=warn
+  # Phone sign-up with real one-time codes. No SMS is sent: the numbers in
+  # GOTRUE_SMS_TEST_OTP get a fixed code (the same map as supabase/config.toml),
+  # and the Twilio values are placeholders that are never used for them.
+  GOTRUE_EXTERNAL_PHONE_ENABLED=true GOTRUE_SMS_AUTOCONFIRM=false
+  GOTRUE_SMS_PROVIDER=twilio GOTRUE_SMS_TWILIO_ACCOUNT_SID=local-placeholder
+  GOTRUE_SMS_TWILIO_AUTH_TOKEN=local-placeholder GOTRUE_SMS_TWILIO_MESSAGE_SERVICE_SID=local-placeholder
+  GOTRUE_SMS_TEST_OTP="${SMS_TEST_OTP:-201000000101:246810,201000000102:246810,201000000103:246810}"
+  GOTRUE_SMS_MAX_FREQUENCY=1s GOTRUE_RATE_LIMIT_SMS_SENT=1000
 )
 (cd "$BIN/auth" && env "${auth_env[@]}" ./auth migrate >"$LOG_DIR/auth-migrate.log" 2>&1) \
   || { echo "auth migrations failed"; cat "$LOG_DIR/auth-migrate.log"; exit 1; }

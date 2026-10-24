@@ -255,11 +255,14 @@ otp_expiry = 3600
 # subject = "Your password has been changed"
 # content_path = "./supabase/templates/password_changed_notification.html"
 
+# LOCAL STACK ONLY (supabase start, used by CI e2e). This file does not
+# configure the hosted project: phone sign-in and the SMS provider for
+# production are set in the Supabase dashboard (see docs/launch-checklist.md).
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
-enable_signup = false
+enable_signup = true
 # If enabled, users need to confirm their phone number before signing in.
-enable_confirmations = false
+enable_confirmations = true
 # Template for sending OTP to users
 template = "Your code is {{ .Code }}"
 # Controls the minimum amount of time that must pass before sending another sms otp.
@@ -267,8 +270,12 @@ max_frequency = "5s"
 
 # Use pre-defined map of phone number to OTP for testing.
 # Keys are the phone number with country code and without the + prefix.
-# [auth.sms.test_otp]
-# 14152127777 = "123456"
+# The e2e tests sign up with these numbers. No SMS is sent for them; keep in
+# sync with SMS_TEST_OTP in scripts/local-stack.sh.
+[auth.sms.test_otp]
+201000000101 = "246810"
+201000000102 = "246810"
+201000000103 = "246810"
 
 # Configure logged in session timeouts.
 # [auth.sessions]
@@ -288,10 +295,12 @@ max_frequency = "5s"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
+# Placeholders so the local stack accepts phone sign-ups; only the test_otp
+# numbers above are used, so nothing is ever sent to Twilio.
 [auth.sms.twilio]
-enabled = false
-account_sid = ""
-message_service_sid = ""
+enabled = true
+account_sid = "local-placeholder"
+message_service_sid = "local-placeholder"
 # DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
 auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 
