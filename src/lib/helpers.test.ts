@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { deliveryFeeFor } from "@/components/cart/cart-summary";
+import { resolveSiteUrl } from "./env";
 import { formatMoney, formatPriceRange } from "./money";
 import { safeNext } from "./safe-redirect";
 import { stockLabel, stockLevel } from "./stock";
@@ -39,6 +40,38 @@ describe("safeNext", () => {
     expect(safeNext("//evil.example")).toBe("/account");
     expect(safeNext("/\\evil.example")).toBe("/account");
     expect(safeNext(null)).toBe("/account");
+  });
+});
+
+describe("resolveSiteUrl", () => {
+  it("prefers the explicit setting and drops a trailing slash", () => {
+    expect(
+      resolveSiteUrl({ NEXT_PUBLIC_SITE_URL: "https://shop.example/", VERCEL_URL: "x.vercel.app" }),
+    ).toBe("https://shop.example");
+  });
+
+  it("uses the production domain on production deployments", () => {
+    expect(
+      resolveSiteUrl({
+        VERCEL_ENV: "production",
+        VERCEL_PROJECT_PRODUCTION_URL: "dewe.example",
+        VERCEL_URL: "dewe-abc123.vercel.app",
+      }),
+    ).toBe("https://dewe.example");
+  });
+
+  it("uses the branch address on previews", () => {
+    expect(
+      resolveSiteUrl({
+        VERCEL_ENV: "preview",
+        VERCEL_BRANCH_URL: "dewe-git-feature.vercel.app",
+        VERCEL_URL: "dewe-abc123.vercel.app",
+      }),
+    ).toBe("https://dewe-git-feature.vercel.app");
+  });
+
+  it("falls back to localhost outside Vercel", () => {
+    expect(resolveSiteUrl({})).toBe("http://localhost:3000");
   });
 });
 

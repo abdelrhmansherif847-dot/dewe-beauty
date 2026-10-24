@@ -47,7 +47,7 @@ npm run dev
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | all | Project URL, e.g. `https://<ref>.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | all | Publishable (anon) key from Supabase, API settings |
-| `NEXT_PUBLIC_SITE_URL` | all | Public site URL, used in sign-up emails |
+| `NEXT_PUBLIC_SITE_URL` | optional | Public site URL, used in sign-up emails and metadata. On Vercel it defaults to the production domain (or the branch URL on previews); set it once a custom domain is live. |
 
 Without the Supabase values the site still builds and shows a notice that the
 catalogue isn't connected yet instead of products.
@@ -85,11 +85,15 @@ the SQL.
 
 ## Going live
 
-1. Import this repository in Vercel and add the three environment variables
-   for Production and Preview.
+1. Import this repository in Vercel and add `NEXT_PUBLIC_SUPABASE_URL` and
+   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for Production and Preview.
+   `vercel.json` pins the framework to Next.js, so the project's framework
+   preset doesn't matter. Previews use the same Supabase project as
+   production unless you give them their own values.
 2. In Supabase, Authentication, URL configuration: set the Site URL to the
-   production domain and add `https://<domain>/auth/callback` (plus preview
-   URLs if wanted) to the redirect allow list.
+   production domain and add `https://<domain>/auth/callback` (plus
+   `https://*-<team>.vercel.app/auth/callback` for previews, if wanted) to the
+   redirect allow list.
 3. Set the real delivery fee, free-delivery threshold and per-item limit in
    `public.store_settings`.
 4. Add staff: after they sign up, insert their user id into `public.staff`
