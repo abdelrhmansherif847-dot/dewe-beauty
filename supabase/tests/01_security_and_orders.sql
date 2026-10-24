@@ -87,7 +87,7 @@ begin
       jsonb_build_object('variant_id', v_tint, 'quantity', 1),
       jsonb_build_object('variant_id', v_tint, 'quantity', 1)
     ),
-    '{"customer_name":"Customer A","phone":"+20 100 000 0000","address_line1":"1 Nile St","city":"Cairo"}',
+    '{"customer_name":"Customer A","phone":"+20 100 000 0000","address_line1":"1 Nile St","city":"Cairo","zone":"C"}',
     v_key
   );
 
@@ -102,7 +102,7 @@ begin
   -- Retrying the same submission returns the same order without new stock moves.
   select * into v_again from public.place_cod_order(
     jsonb_build_array(jsonb_build_object('variant_id', v_serum, 'quantity', 2)),
-    '{"customer_name":"Customer A","phone":"+20 100 000 0000","address_line1":"1 Nile St","city":"Cairo"}',
+    '{"customer_name":"Customer A","phone":"+20 100 000 0000","address_line1":"1 Nile St","city":"Cairo","zone":"C"}',
     v_key
   );
   assert v_again.order_id = v_order.order_id, 'idempotent retry returns the original order';
@@ -115,7 +115,7 @@ declare
   v_sold_out uuid := (select id from public.product_variants where sku = 'SMP-RSL-TNT-02');
   v_low uuid := (select id from public.product_variants where sku = 'SMP-RSL-EDP-50');
   v_ok uuid := (select id from public.product_variants where sku = 'SMP-DLN-CLN-150');
-  v_ship jsonb := '{"customer_name":"Customer A","phone":"+20 100 000 0000","address_line1":"1 Nile St","city":"Cairo"}';
+  v_ship jsonb := '{"customer_name":"Customer A","phone":"+20 100 000 0000","address_line1":"1 Nile St","city":"Cairo","zone":"C"}';
 begin
   begin
     perform public.place_cod_order(
@@ -167,10 +167,19 @@ begin
   begin
     perform public.place_cod_order(
       jsonb_build_array(jsonb_build_object('variant_id', (select v.id from public.product_variants v where v.sku = 'SMP-DLN-CLN-150'), 'quantity', 1)),
-      '{"customer_name":"A","phone":"call me","address_line1":"x","city":""}', gen_random_uuid());
+      '{"customer_name":"A","phone":"01000000000","address_line1":"x","city":"","zone":"C"}', gen_random_uuid());
     raise exception 'bad shipping accepted';
   exception when raise_exception then
     assert sqlerrm = 'invalid_shipping', sqlerrm;
+  end;
+
+  begin
+    perform public.place_cod_order(
+      jsonb_build_array(jsonb_build_object('variant_id', (select v.id from public.product_variants v where v.sku = 'SMP-DLN-CLN-150'), 'quantity', 1)),
+      '{"customer_name":"Customer A","phone":"call me","address_line1":"1 Nile St","city":"Cairo","zone":"C"}', gen_random_uuid());
+    raise exception 'bad phone accepted';
+  exception when raise_exception then
+    assert sqlerrm = 'invalid_phone', sqlerrm;
   end;
 
   begin
@@ -209,7 +218,7 @@ do $$ begin
   begin
     perform public.place_cod_order(
       jsonb_build_array(jsonb_build_object('variant_id', current_setting('test.inactive_variant'), 'quantity', 1)),
-      '{"customer_name":"Customer A","phone":"+20 100 000 0000","address_line1":"1 Nile St","city":"Cairo"}', gen_random_uuid());
+      '{"customer_name":"Customer A","phone":"+20 100 000 0000","address_line1":"1 Nile St","city":"Cairo","zone":"C"}', gen_random_uuid());
     raise exception 'inactive variant sold';
   exception when raise_exception then
     assert sqlerrm = 'unavailable_item', sqlerrm;
