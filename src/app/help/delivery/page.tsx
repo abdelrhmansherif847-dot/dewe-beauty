@@ -23,7 +23,8 @@ export default async function DeliveryHelpPage() {
 
         <h2>How cash on delivery works</h2>
         <p>
-          Place your order with your delivery address and a mobile number. When the courier hands over your parcel, you
+          Place your order with your delivery address and an Egyptian mobile number. You don&apos;t need an account
+          or an email address: you can check out as a guest. When the courier hands over your parcel, you
           pay the total shown on your order confirmation in cash.
         </p>
         <p>
@@ -37,7 +38,8 @@ export default async function DeliveryHelpPage() {
           {settings.freeDeliveryThresholdCents !== null
             ? `, and delivery is free on orders of ${formatMoney(settings.freeDeliveryThresholdCents, settings.currency)} or more`
             : ""}
-          . The fee always appears in your bag and at checkout before you confirm.
+          . Some governorates may have their own fee, and we only deliver to the governorates listed at checkout. The
+          fee for your governorate appears at checkout before you confirm.
         </p>
 
         <div className="note" style={{ marginTop: "2rem" }}>

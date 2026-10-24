@@ -235,6 +235,39 @@ export type Database = {
           },
         ]
       }
+      delivery_zones: {
+        Row: {
+          code: string
+          created_at: string
+          delivery_fee_cents: number | null
+          is_active: boolean
+          name: string
+          name_ar: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          delivery_fee_cents?: number | null
+          is_active?: boolean
+          name: string
+          name_ar: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          delivery_fee_cents?: number | null
+          is_active?: boolean
+          name?: string
+          name_ar?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           address_line1: string
@@ -244,6 +277,9 @@ export type Database = {
           currency: string
           customer_name: string
           delivery_fee_cents: number
+          delivery_zone_code: string | null
+          email: string | null
+          guest_access_hash: string | null
           id: string
           idempotency_key: string
           notes: string | null
@@ -255,7 +291,7 @@ export type Database = {
           subtotal_cents: number
           total_cents: number
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           address_line1: string
@@ -265,6 +301,9 @@ export type Database = {
           currency: string
           customer_name: string
           delivery_fee_cents: number
+          delivery_zone_code?: string | null
+          email?: string | null
+          guest_access_hash?: string | null
           id?: string
           idempotency_key: string
           notes?: string | null
@@ -276,7 +315,7 @@ export type Database = {
           subtotal_cents: number
           total_cents: number
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           address_line1?: string
@@ -286,6 +325,9 @@ export type Database = {
           currency?: string
           customer_name?: string
           delivery_fee_cents?: number
+          delivery_zone_code?: string | null
+          email?: string | null
+          guest_access_hash?: string | null
           id?: string
           idempotency_key?: string
           notes?: string | null
@@ -297,9 +339,17 @@ export type Database = {
           subtotal_cents?: number
           total_cents?: number
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_delivery_zone_code_fkey"
+            columns: ["delivery_zone_code"]
+            isOneToOne: false
+            referencedRelation: "delivery_zones"
+            referencedColumns: ["code"]
+          },
+        ]
       }
       product_images: {
         Row: {
@@ -478,6 +528,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          email: string | null
           full_name: string | null
           id: string
           phone: string | null
@@ -485,6 +536,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
@@ -492,6 +544,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
@@ -587,8 +640,24 @@ export type Database = {
         Returns: Database["public"]["Enums"]["order_status"]
       }
       escape_like: { Args: { p_value: string }; Returns: string }
+      get_guest_order: {
+        Args: { p_access_token: string; p_order_id: string }
+        Returns: Json
+      }
       place_cod_order: {
         Args: { p_idempotency_key: string; p_items: Json; p_shipping: Json }
+        Returns: {
+          order_id: string
+          order_number: number
+        }[]
+      }
+      place_guest_cod_order: {
+        Args: {
+          p_access_token: string
+          p_idempotency_key: string
+          p_items: Json
+          p_shipping: Json
+        }
         Returns: {
           order_id: string
           order_number: number

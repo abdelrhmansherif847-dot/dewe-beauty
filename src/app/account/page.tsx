@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { StoreNotice } from "@/components/ui/store-notice";
 import { formatMoney } from "@/lib/money";
 import { ORDER_STATUS_LABEL, formatOrderDate } from "@/lib/orders";
+import { formatEgMobile } from "@/lib/phone";
 import { connection } from "next/server";
 import { createSessionClient } from "@/lib/supabase/server";
 import { signOut } from "./actions";
@@ -25,7 +26,7 @@ export default async function AccountPage() {
   if (!data.user) redirect("/account/sign-in?next=/account");
 
   const [{ data: profile }, { data: orders }] = await Promise.all([
-    supabase.from("profiles").select("full_name").eq("id", data.user.id).maybeSingle(),
+    supabase.from("profiles").select("full_name, phone, email").eq("id", data.user.id).maybeSingle(),
     supabase
       .from("orders")
       .select("id, order_number, status, total_cents, currency, created_at")
@@ -39,7 +40,9 @@ export default async function AccountPage() {
         <div className="stack" style={{ "--stack-gap": "0.5rem" } as React.CSSProperties}>
           <p className="eyebrow">Your account</p>
           <h1 className="page-head__title">Hello{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}</h1>
-          <p className="muted">{data.user.email}</p>
+          <p className="muted" dir="ltr">
+            {formatEgMobile(profile?.phone ?? (data.user.phone ? `+${data.user.phone}` : data.user.email))}
+          </p>
         </div>
         <form action={signOut}>
           <button type="submit" className="btn btn--ghost">

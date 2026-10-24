@@ -1,16 +1,34 @@
 import { z } from "zod";
+import { PHONE_ERROR, normalizeEgMobile } from "./phone";
 
 export const shippingSchema = z.object({
   customer_name: z.string().trim().min(2, "Please enter your full name.").max(120),
   phone: z
     .string()
+    .transform((v, ctx) => {
+      const phone = normalizeEgMobile(v);
+      if (!phone) {
+        ctx.addIssue({ code: "custom", message: PHONE_ERROR });
+        return z.NEVER;
+      }
+      return phone;
+    }),
+  email: z
+    .string()
     .trim()
-    .transform((v) => v.replace(/[^0-9+ ]/g, ""))
-    .pipe(z.string().regex(/^\+?[0-9 ]{7,20}$/, "Please enter a phone number we can call on delivery.")),
+    .toLowerCase()
+    .max(254)
+    .pipe(z.union([z.literal(""), z.email("Please check your email address, or leave it empty.")]))
+    .optional()
+    .default(""),
   address_line1: z.string().trim().min(3, "Please enter your street address.").max(200),
   address_line2: z.string().trim().max(200).optional().default(""),
-  city: z.string().trim().min(2, "Please enter your city.").max(80),
-  region: z.string().trim().max(80).optional().default(""),
+  city: z.string().trim().min(2, "Please enter your city or area.").max(80),
+  zone: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{1,4}$/, "Please choose your governorate."),
   notes: z.string().trim().max(500).optional().default(""),
 });
 
@@ -33,6 +51,9 @@ export type CheckoutErrorCode =
   | "unavailable_item"
   | "insufficient_stock"
   | "invalid_shipping"
+  | "invalid_phone"
+  | "unsupported_location"
+  | "too_many_orders"
   | "invalid_request"
   | "unknown";
 
@@ -50,6 +71,9 @@ export function parseCheckoutError(message: string | undefined | null): ParsedCh
     "invalid_quantity",
     "unavailable_item",
     "invalid_shipping",
+    "invalid_phone",
+    "unsupported_location",
+    "too_many_orders",
   ];
   const hit = known.find((code) => message === code);
   if (hit) return { code: hit };
@@ -64,6 +88,9 @@ export const CHECKOUT_ERROR_COPY: Record<CheckoutErrorCode, string> = {
   unavailable_item: "An item in your bag is no longer available. We have marked it below.",
   insufficient_stock: "We don't have enough stock for one of your items. We have updated your bag.",
   invalid_shipping: "Please check your delivery details.",
+  invalid_phone: "Please enter an Egyptian mobile number, such as 010 1234 5678.",
+  unsupported_location: "We don't deliver to that governorate yet. Please choose another delivery address.",
+  too_many_orders: "This number already has several open orders today. Please call us to add to an existing order.",
   invalid_request: "Something in your bag didn't look right. Please refresh and try again.",
   unknown: "We couldn't place your order, and your bag is saved. Please try again in a moment.",
 };

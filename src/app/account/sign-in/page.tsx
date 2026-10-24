@@ -15,7 +15,7 @@ export default function SignInPage({ searchParams }: { searchParams: SearchParam
         <div className="stack" style={{ "--stack-gap": "0.5rem", textAlign: "center" } as React.CSSProperties}>
           <p className="eyebrow">Your account</p>
           <h1 className="title-lg">Welcome to DEWÉ</h1>
-          <p className="muted">Sign in to check out and follow your orders.</p>
+          <p className="muted">Sign in with your mobile number to follow your orders.</p>
         </div>
         <Suspense fallback={<div className="skeleton" style={{ height: 320 }} />}>
           <AuthPanel searchParams={searchParams} />
@@ -43,6 +43,14 @@ async function AuthPanel({ searchParams }: { searchParams: SearchParams }) {
       <div className="panel">
         <AuthForm key={mode} mode={mode} next={next} />
       </div>
+      {next.startsWith("/checkout") && (
+        <p className="muted" style={{ textAlign: "center" }}>
+          No account needed to order.{" "}
+          <Link href="/checkout?as=guest" data-testid="guest-from-sign-in">
+            Continue as guest
+          </Link>
+        </p>
+      )}
       {sp.error === "auth" && (
         <p className="alert" role="alert">
           That sign-in link has expired or was already used. Please sign in again.
