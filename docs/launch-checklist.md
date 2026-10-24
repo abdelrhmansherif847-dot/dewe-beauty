@@ -10,11 +10,10 @@ its public `/auth/v1/settings`: email sign-in on, email auto-confirm off,
 
 ## 1. Apply the database migration
 
-- [ ] Apply `supabase/migrations/20261024224500_phone_accounts_guest_checkout.sql`
-      to the live project (the live database has the first three migrations
-      only). It adds delivery zones, guest orders and the stricter phone
-      format. It changes the `orders.phone` check, which is safe while the
-      live database has no orders.
+- [x] Apply `supabase/migrations/20261024234121_phone_accounts_guest_checkout.sql`
+      to the live project. Applied on 2026-10-24 and recorded as version
+      `20261024234121`, while the live database had no orders. It adds
+      delivery zones, guest orders and the stricter phone format.
 
 ## 2. Phone sign-in and SMS codes (needed for accounts, not for guests)
 
