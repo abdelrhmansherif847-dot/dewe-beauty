@@ -14,6 +14,16 @@ its public `/auth/v1/settings`: email sign-in on, email auto-confirm off,
       to the live project. Applied on 2026-10-24 and recorded as version
       `20261024234121`, while the live database had no orders. It adds
       delivery zones, guest orders and the stricter phone format.
+- [ ] Apply `supabase/migrations/20261025001000_guest_orders_server_only.sql`
+      **together with the deploy that contains the matching app change**
+      (guest checkout through `SUPABASE_SECRET_KEY`). It removes `anon` and
+      `authenticated` access to `place_guest_cod_order()`. Applied before that
+      deploy, guest checkout fails; deployed without it, the public key can
+      still create guest orders directly. Rename the file afterwards if the
+      apply tool records a different version.
+- [ ] Confirm `SUPABASE_SECRET_KEY` is set in Vercel as Sensitive and for
+      Production only. Previews then cannot place guest orders, which is
+      intended while they share the production database.
 
 ## 2. Phone sign-in and SMS codes (needed for accounts, not for guests)
 
@@ -56,9 +66,15 @@ Email is optional for customers and is not a login. Nothing is sent to it.
 
 ## 5. Abuse protection
 
-- [ ] Guest orders are capped at three open orders per number per day in the
-      database. Consider Vercel Firewall rate limiting or bot protection on
-      `/checkout` as well.
+- [x] Guest orders can only be created by the server (service role), so a
+      script with the public key cannot skip the site.
+- [ ] Add a Vercel Firewall rate-limit rule for `POST /checkout` (for example
+      a few requests per IP per 10 minutes) and consider bot protection. The
+      database also caps guests at three open orders per number per day, but
+      numbers are easy to vary.
+- [ ] Decide whether email sign-up stays on in Supabase Auth. The store uses
+      phone accounts only, but with email sign-up on anyone can create
+      unconfirmed users through the Auth API directly.
 
 ## 6. Catalog and staff
 

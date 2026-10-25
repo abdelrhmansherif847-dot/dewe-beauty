@@ -40,8 +40,11 @@ Built with Next.js 16 (App Router, Cache Components), TypeScript, Supabase
   and only their own profile and orders. They cannot insert orders directly,
   change prices or stock, or make themselves staff. Staff are listed in
   `public.staff`, checked by `private.is_admin()`.
-- **No secret keys in the app.** It only needs the public URL and the
-  publishable key.
+- **Guest orders are created on the server only.** `place_guest_cod_order()`
+  can be called by `service_role` alone, so the public key cannot create
+  orders through the REST API. The checkout server action calls it with
+  `SUPABASE_SECRET_KEY` from server-only code (`src/lib/supabase/service.ts`);
+  everything else uses the publishable key.
 
 ## Getting started
 
@@ -60,6 +63,7 @@ npm run dev
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | all | Project URL, e.g. `https://<ref>.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | all | Publishable (anon) key from Supabase, API settings |
+| `SUPABASE_SECRET_KEY` | server only | Secret (service role) key. Needed for guest checkout; without it guest checkout reports it is unavailable. On Vercel: Sensitive, Production only. Never prefix it with `NEXT_PUBLIC_`. |
 | `NEXT_PUBLIC_SITE_URL` | optional | Public site URL, used in sign-up emails and metadata. On Vercel it defaults to the production domain (or the branch URL on previews); set it once a custom domain is live. |
 
 Without the Supabase values the site still builds and shows a notice that the
@@ -72,7 +76,8 @@ npx supabase start        # applies migrations and supabase/seed.sql
 npx supabase status -o env
 ```
 
-Use the printed `API_URL` and `ANON_KEY` in `.env.local`. Phone sign-up works
+Use the printed `API_URL`, `ANON_KEY` and `SERVICE_ROLE_KEY` (as
+`SUPABASE_SECRET_KEY`) in `.env.local`. Phone sign-up works
 locally without sending SMS: the numbers in `[auth.sms.test_otp]` of
 `supabase/config.toml` (010 0000 0101 to 0103) always receive the code
 `246810`. Phone accounts are unique, so restart the stack (and delete `.next`

@@ -115,6 +115,9 @@ for _ in $(seq 1 40); do
 done
 
 ANON_KEY="$(node "$ROOT/scripts/local-gateway.mjs" --sign anon "$JWT_SECRET")"
+# Local-only service key: guest checkout runs through the server with it.
+SERVICE_KEY="$(node "$ROOT/scripts/local-gateway.mjs" --sign service_role "$JWT_SECRET")"
 echo "Local stack ready at http://127.0.0.1:54321"
 echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321"
 echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$ANON_KEY"
+echo "SUPABASE_SECRET_KEY=$SERVICE_KEY"

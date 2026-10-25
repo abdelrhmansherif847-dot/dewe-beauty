@@ -12,6 +12,7 @@ import {
 } from "@/lib/checkout";
 import { GUEST_COOKIE_MAX_AGE, guestCookieName, guestTokenSchema } from "@/lib/guest-orders";
 import { createSessionClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { z } from "zod";
 
 export type CheckoutState =
@@ -71,7 +72,13 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
   let userId: string | null = null;
   let result;
   if (asGuest) {
-    result = await supabase.rpc("place_guest_cod_order", {
+    // Guest orders can only be created with the server's secret key, so every
+    // one passes through this action rather than straight to the REST API.
+    const service = createServiceClient();
+    if (!service) {
+      return { status: "error", code: "checkout_unavailable", message: CHECKOUT_ERROR_COPY.checkout_unavailable };
+    }
+    result = await service.rpc("place_guest_cod_order", {
       p_items: items.data,
       p_shipping: shipping.data,
       p_idempotency_key: key.data,

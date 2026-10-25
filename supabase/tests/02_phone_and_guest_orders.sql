@@ -62,14 +62,16 @@ end $$;
 
 -- --------------------------------------------------------- guest orders ---
 create temporary table guest_fixture (k text primary key, v text);
-grant select, insert on guest_fixture to anon, authenticated;
+grant select, insert on guest_fixture to anon, authenticated, service_role;
 insert into guest_fixture values
   ('token', 'guest-token-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'),
   ('other_token', 'guest-token-BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'),
   ('key', '22222222-2222-2222-2222-222222222222');
 
+-- Guest orders are placed by the storefront server with the secret key
+-- (service_role); 03_guest_rpc_grants.sql proves anon cannot place them.
 begin;
-set local role anon;
+set local role service_role;
 do $$
 declare
   v_token text := (select v from guest_fixture where k = 'token');
@@ -80,32 +82,12 @@ declare
   v_ship jsonb := '{"customer_name":"Guest Buyer","phone":"010 1111 2222","address_line1":"5 Corniche Rd","city":"Smouha","zone":"alx","email":""}';
   v_order record;
   v_again record;
-  v_read jsonb;
 begin
   -- Price smuggling is ignored and the zone fee applies.
   select * into v_order from public.place_guest_cod_order(
     jsonb_build_array(jsonb_build_object('variant_id', v_serum, 'quantity', 1, 'price_cents', 1, 'unit_price_cents', 1)),
     v_ship, v_key, v_token);
   insert into guest_fixture values ('order_id', v_order.order_id::text), ('order_number', v_order.order_number::text);
-
-  -- Anon has no read access to the orders table at all.
-  assert (select count(*) from public.orders) = 0, 'anon cannot list orders';
-
-  v_read := public.get_guest_order(v_order.order_id, v_token);
-  assert v_read is not null, 'guest reads own order with token';
-  assert (v_read ->> 'subtotal_cents')::int = 65000, 'guest subtotal uses the database price';
-  assert (v_read ->> 'delivery_fee_cents')::int = 7500, 'zone fee overrides the store default';
-  assert (v_read ->> 'total_cents')::int = 72500, 'total = subtotal + zone fee';
-  assert v_read ->> 'phone' = '+201011112222', 'phone stored in E.164';
-  assert v_read ->> 'region' = 'Alexandria', 'zone name recorded';
-  assert v_read ->> 'email' is null, 'blank email stored as null';
-  assert jsonb_array_length(v_read -> 'order_items') = 1, 'items included';
-  assert not (v_read ? 'guest_access_hash') and not (v_read ? 'user_id'), 'no secrets returned';
-
-  assert public.get_guest_order(v_order.order_id, v_other) is null, 'wrong token reads nothing';
-  assert public.get_guest_order(v_order.order_id, '') is null, 'empty token reads nothing';
-  assert public.get_guest_order(v_order.order_id, null) is null, 'null token reads nothing';
-  assert public.get_guest_order(gen_random_uuid(), v_token) is null, 'token is bound to its order';
 
   -- Duplicate submission: same key and token returns the same order, once.
   select * into v_again from public.place_guest_cod_order(
@@ -183,6 +165,37 @@ begin
   exception when raise_exception then
     assert sqlerrm like 'insufficient_stock:%', sqlerrm;
   end;
+end $$;
+commit;
+
+-- The buyer's browser reads its order through get_guest_order as anon.
+begin;
+set local role anon;
+do $$
+declare
+  v_token text := (select v from guest_fixture where k = 'token');
+  v_other text := (select v from guest_fixture where k = 'other_token');
+  v_order_id uuid := (select v::uuid from guest_fixture where k = 'order_id');
+  v_read jsonb;
+begin
+  -- Anon has no read access to the orders table at all.
+  assert (select count(*) from public.orders) = 0, 'anon cannot list orders';
+
+  v_read := public.get_guest_order(v_order_id, v_token);
+  assert v_read is not null, 'guest reads own order with token';
+  assert (v_read ->> 'subtotal_cents')::int = 65000, 'guest subtotal uses the database price';
+  assert (v_read ->> 'delivery_fee_cents')::int = 7500, 'zone fee overrides the store default';
+  assert (v_read ->> 'total_cents')::int = 72500, 'total = subtotal + zone fee';
+  assert v_read ->> 'phone' = '+201011112222', 'phone stored in E.164';
+  assert v_read ->> 'region' = 'Alexandria', 'zone name recorded';
+  assert v_read ->> 'email' is null, 'blank email stored as null';
+  assert jsonb_array_length(v_read -> 'order_items') = 1, 'items included';
+  assert not (v_read ? 'guest_access_hash') and not (v_read ? 'user_id'), 'no secrets returned';
+
+  assert public.get_guest_order(v_order_id, v_other) is null, 'wrong token reads nothing';
+  assert public.get_guest_order(v_order_id, '') is null, 'empty token reads nothing';
+  assert public.get_guest_order(v_order_id, null) is null, 'null token reads nothing';
+  assert public.get_guest_order(gen_random_uuid(), v_token) is null, 'token is bound to its order';
 
   -- Anon still cannot use the customer entry point or the private helper.
   begin
@@ -200,7 +213,7 @@ commit;
 
 -- Rate limit: at most three open guest orders per number per day.
 begin;
-set local role anon;
+set local role service_role;
 do $$
 declare
   v_ok uuid := (select id from public.product_variants where sku = 'SMP-DLN-CLN-150');
