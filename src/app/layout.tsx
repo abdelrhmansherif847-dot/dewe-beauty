@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { RevealObserver } from "@/components/motion/reveal-observer";
 import { siteUrl } from "@/lib/env";
+import "@/styles/tailwind.css";
 import "./globals.css";
 
 const bodoni = Bodoni_Moda({
@@ -52,9 +53,14 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${bodoni.variable} ${manrope.variable} ${amiri.variable}`}>
+    <html
+      lang="en"
+      className={`${bodoni.variable} ${manrope.variable} ${amiri.variable}`}
+    >
       <body>
         <a href="#main" className="skip-link">
           Skip to content
