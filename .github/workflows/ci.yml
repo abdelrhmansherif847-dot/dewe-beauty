@@ -65,11 +65,16 @@ jobs:
       # Starts only what the store uses: Postgres, Auth, PostgREST and the gateway.
       # Migrations and supabase/seed.sql are applied automatically.
       - run: npx supabase start -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+        env:
+          # Placeholder: the e2e phone numbers use test OTPs and never reach Twilio.
+          SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN: local-placeholder
       - name: Export local Supabase settings
         run: |
           npx supabase status -o env > supabase.env
           echo "NEXT_PUBLIC_SUPABASE_URL=$(grep '^API_URL=' supabase.env | cut -d= -f2- | tr -d '"')" >> "$GITHUB_ENV"
           echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(grep '^ANON_KEY=' supabase.env | cut -d= -f2- | tr -d '"')" >> "$GITHUB_ENV"
+          # Local stack's service key (not a real secret): guest checkout needs it on the server.
+          echo "SUPABASE_SECRET_KEY=$(grep '^SERVICE_ROLE_KEY=' supabase.env | cut -d= -f2- | tr -d '"')" >> "$GITHUB_ENV"
           echo "NEXT_PUBLIC_SITE_URL=http://localhost:3000" >> "$GITHUB_ENV"
           rm supabase.env
       - run: npm run build

@@ -371,3 +371,28 @@ export async function getRelatedProducts(brandSlug: string, excludeSlug: string)
     .limit(4);
   return summaries(data);
 }
+
+export type DeliveryZone = {
+  code: string;
+  name: string;
+  nameAr: string;
+  /** null means the store's default delivery fee applies. */
+  deliveryFeeCents: number | null;
+};
+
+/** Governorates we currently deliver to. The database re-checks at checkout. */
+export async function getDeliveryZones(): Promise<DeliveryZone[]> {
+  "use cache";
+  cacheTag(CATALOG_TAG, "delivery-zones");
+  cacheLife("minutes");
+
+  const supabase = createPublicClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("delivery_zones")
+    .select("code, name, name_ar, delivery_fee_cents")
+    .order("sort_order")
+    .order("name");
+  if (error || !data) return [];
+  return data.map((z) => ({ code: z.code, name: z.name, nameAr: z.name_ar, deliveryFeeCents: z.delivery_fee_cents }));
+}

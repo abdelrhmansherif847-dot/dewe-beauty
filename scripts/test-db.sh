@@ -43,7 +43,7 @@ select set_config('request.jwt.claim.sub', '${user}', true);
 set local role authenticated;
 select 'ORDER_OK' from public.place_cod_order(
   jsonb_build_array(jsonb_build_object('variant_id', (select id from public.product_variants where sku = 'SMP-DLN-MOI-50'), 'quantity', 1)),
-  '{"customer_name":"Race","phone":"+20 100 000 0000","address_line1":"1 Nile St","city":"Cairo"}',
+  '{"customer_name":"Race","phone":"+20 100 000 0000","address_line1":"1 Nile St","city":"Cairo","zone":"C"}',
   gen_random_uuid());
 select pg_sleep(${hold});
 commit;

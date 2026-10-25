@@ -1,6 +1,6 @@
 // Minimal stand-in for Supabase's API gateway, for local end-to-end tests only.
 // Routes /rest/v1/* to PostgREST and /auth/v1/* to Supabase Auth, and mints the
-// local anon key when called with `--sign anon <secret>`.
+// local anon or service key when called with `--sign <role> <secret>`.
 import { createHmac } from "node:crypto";
 import http from "node:http";
 

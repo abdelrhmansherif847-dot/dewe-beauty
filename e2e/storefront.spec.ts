@@ -116,7 +116,11 @@ test.describe("not found", () => {
   });
 });
 
-test("checkout asks signed-out shoppers to sign in", async ({ page }) => {
+test("checkout offers signed-out shoppers guest checkout or an account", async ({ page }) => {
   await page.goto("/checkout");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("How would you like to check out?");
+  await expect(page.getByTestId("continue-as-guest").filter({ visible: true })).toBeVisible();
+  await page.locator("main").getByRole("link", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/account\/sign-in\?next=(%2F|\/)checkout/);
+  await expect(page.getByTestId("guest-from-sign-in").filter({ visible: true })).toBeVisible();
 });

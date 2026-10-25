@@ -6,6 +6,9 @@ describe("parseCheckoutError", () => {
     expect(parseCheckoutError("auth_required")).toEqual({ code: "auth_required" });
     expect(parseCheckoutError("unavailable_item")).toEqual({ code: "unavailable_item" });
     expect(parseCheckoutError("invalid_request:items")).toEqual({ code: "invalid_request" });
+    expect(parseCheckoutError("invalid_phone")).toEqual({ code: "invalid_phone" });
+    expect(parseCheckoutError("unsupported_location")).toEqual({ code: "unsupported_location" });
+    expect(parseCheckoutError("too_many_orders")).toEqual({ code: "too_many_orders" });
   });
 
   it("extracts the variant from an insufficient stock error", () => {
@@ -26,18 +29,33 @@ describe("shippingSchema", () => {
     customer_name: "  Salma Adel ",
     phone: "+20 (100) 000-0000",
     address_line1: "12 Example Street",
-    city: "Cairo",
+    city: "Nasr City",
+    zone: "c",
   };
 
-  it("trims fields, strips phone punctuation and fills optional fields", () => {
+  it("trims fields, normalises the phone and fills optional fields", () => {
     const parsed = shippingSchema.parse(valid);
     expect(parsed).toMatchObject({
       customer_name: "Salma Adel",
-      phone: "+20 100 0000000",
+      phone: "+201000000000",
+      email: "",
+      zone: "C",
       address_line2: "",
-      region: "",
       notes: "",
     });
+  });
+
+  it("keeps email optional but checks it when given", () => {
+    expect(shippingSchema.parse({ ...valid, email: "" }).email).toBe("");
+    expect(shippingSchema.parse({ ...valid, email: " Salma@Example.com " }).email).toBe("salma@example.com");
+    expect(shippingSchema.safeParse({ ...valid, email: "salma@" }).success).toBe(false);
+  });
+
+  it("requires an Egyptian mobile number and a governorate", () => {
+    expect(shippingSchema.safeParse({ ...valid, phone: "+44 7700 900123" }).success).toBe(false);
+    expect(shippingSchema.safeParse({ ...valid, phone: "01312345678" }).success).toBe(false);
+    expect(shippingSchema.safeParse({ ...valid, zone: "" }).success).toBe(false);
+    expect(shippingSchema.safeParse({ ...valid, zone: "Cairo!" }).success).toBe(false);
   });
 
   it("rejects missing or implausible details", () => {
