@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { Spotlight } from "@/components/aceternity/spotlight-new";
 import { ProductArt } from "@/components/art/product-art";
 import { CashIcon, DropIcon, SparkleIcon } from "@/components/ui/icons";
 import type { ProductSummary } from "@/lib/catalog";
@@ -7,15 +8,31 @@ import { formatPriceRange } from "@/lib/money";
 
 const TITLE = [["Your", "everyday"], ["glow"]];
 
+// Warm campaign light in the brand's champagne, peach and blush, kept faint so
+// it reads as daylight on ivory rather than a glow effect.
+const LIGHT = {
+  gradientFirst:
+    "radial-gradient(68.54% 68.72% at 55.02% 31.46%, rgb(235 196 154 / 0.28) 0, rgb(247 201 184 / 0.12) 28%, rgb(249 225 227 / 0) 45%)",
+  gradientSecond:
+    "radial-gradient(50% 50% at 50% 50%, rgb(235 196 154 / 0.18) 0, rgb(249 225 227 / 0.08) 80%, transparent 100%)",
+  gradientThird:
+    "radial-gradient(50% 50% at 50% 50%, rgb(247 201 184 / 0.16) 0, rgb(249 225 227 / 0.06) 80%, transparent 100%)",
+};
+
 /**
  * Cinematic but cheap: the headline rises word by word and the arch catches
  * one sweep of light, all in CSS so it runs before hydration and never blocks
- * the largest contentful paint.
+ * the largest contentful paint. Behind it, two slow beams of warm light (the
+ * Aceternity Spotlight) drift like studio light; they hold still when the
+ * visitor prefers reduced motion.
  */
 export function Hero({ spotlight }: { spotlight: ProductSummary | null }) {
   let wordIndex = 0;
   return (
     <section className="hero" aria-labelledby="hero-title">
+      <div className="hero__light">
+        <Spotlight {...LIGHT} duration={12} xOffset={70} />
+      </div>
       <div className="container hero__grid">
         <div className="hero__copy">
           <p className="eyebrow hero__fade" style={{ "--i": 0 } as CSSProperties}>

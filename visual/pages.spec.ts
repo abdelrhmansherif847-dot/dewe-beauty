@@ -48,6 +48,13 @@ const styleProps = [
 async function settle(page: Page) {
   await page.waitForLoadState("networkidle");
   await page.evaluate(() => document.fonts.ready);
+  // Let finite entrance animations (CSS or Motion) finish, so the screenshot
+  // shows the settled page rather than whatever frame Playwright cancels to.
+  await page.waitForFunction(() =>
+    document
+      .getAnimations()
+      .every((a) => a.playState !== "running" || a.effect?.getComputedTiming().iterations === Infinity),
+  );
 }
 
 async function computedStyles(page: Page) {
@@ -72,7 +79,7 @@ for (const { name, path } of pages) {
   test(`${name} looks unchanged`, async ({ page }) => {
     await page.goto(path);
     await settle(page);
-    await expect(page).toHaveScreenshot(`${name}.png`, { fullPage: true });
+    await expect.soft(page).toHaveScreenshot(`${name}.png`, { fullPage: true });
     expect(JSON.stringify(await computedStyles(page), null, 2)).toMatchSnapshot(
       `${name}.styles.json`,
     );
