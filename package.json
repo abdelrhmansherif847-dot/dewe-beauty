@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:db": "scripts/test-db.sh",
     "test:e2e": "playwright test",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:visual": "playwright test -c playwright.visual.config.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
