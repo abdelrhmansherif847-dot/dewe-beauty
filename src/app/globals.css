@@ -902,6 +902,12 @@
   }
 }
 
+/* The eyebrow is small text over the peach wash and the campaign light, so it
+   uses a slightly deeper rose ink than elsewhere to stay above 5:1. */
+.hero__copy .eyebrow {
+  color: color-mix(in srgb, var(--rose-ink) 85%, var(--mocha-deep));
+}
+
 .hero__arabic {
   font-size: var(--step-2);
   color: var(--accent-ink);
@@ -1005,6 +1011,12 @@
     bottom: 2.5rem;
     max-width: 200px;
     padding: 0.75rem 1rem;
+  }
+
+  /* On phones the copy sits right under the light, so it is dimmed to keep
+     small text at 5:1 or better. */
+  .hero__light {
+    opacity: 0.5;
   }
 }
 
