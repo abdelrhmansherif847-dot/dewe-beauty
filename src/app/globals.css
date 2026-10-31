@@ -676,6 +676,192 @@
   display: none;
 }
 
+/* Visible words beside the header icons; desktop only (see below). */
+.site-header__label {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Desktop header (Luxury Editorial). Everything here is scoped to wide
+   screens; the phone header and menu (max-width: 900px) are untouched.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 901px) {
+  :root {
+    --header-h: 84px;
+  }
+
+  .site-header {
+    background: color-mix(in srgb, var(--ivory) 92%, transparent);
+    border-bottom-color: var(--hairline);
+  }
+
+  .site-header[data-scrolled="true"] {
+    border-bottom-color: color-mix(in srgb, var(--champagne) 85%, transparent);
+    box-shadow: 0 14px 34px -30px rgb(62 43 38 / 0.55);
+  }
+
+  /* The side columns never shrink below their content, so the links can't wrap
+     or run into the wordmark on narrow laptops; at full width it stays centred. */
+  .site-header__bar {
+    grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+    gap: var(--space-6);
+  }
+
+  /* Navigation: small capitals, generous tracking, a champagne point between items. */
+  .site-header__nav {
+    gap: var(--space-6);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    white-space: nowrap;
+  }
+
+  .site-header__nav a {
+    position: relative;
+    padding-block: 6px;
+    color: var(--text-soft);
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-position: 50% 100%;
+    background-size: 0 1px;
+    background-repeat: no-repeat;
+    transition:
+      color var(--dur-quick) var(--ease-out),
+      background-size var(--dur-base) var(--ease-out);
+  }
+
+  .site-header__nav a + a::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: calc(var(--space-6) / -2 - 2px);
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--champagne);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .site-header__nav a:hover {
+    color: var(--text);
+    background-size: 100% 1px;
+  }
+
+  .site-header__nav a[aria-current="page"] {
+    color: var(--text);
+    background-size: 100% 1px;
+  }
+
+  /* Wordmark: a touch larger, with fine champagne rules either side of BEAUTY. */
+  .site-header .wordmark__name {
+    font-size: clamp(1.7rem, 1.2rem + 0.9vw, 2.15rem);
+    letter-spacing: 0.22em;
+    margin-right: -0.22em;
+  }
+
+  .site-header .wordmark__sub {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-right: 0;
+    margin-top: 0.45rem;
+    font-size: 0.54rem;
+  }
+
+  .site-header .wordmark__sub::before,
+  .site-header .wordmark__sub::after {
+    content: "";
+    width: 18px;
+    height: 1px;
+    background: var(--champagne);
+  }
+
+  /* The trailing letter-spacing of BEAUTY would push the right rule away. */
+  .site-header .wordmark__sub::after {
+    margin-left: -0.6em;
+  }
+
+  /* Utilities read as words, not a row of floating icons. */
+  .site-header__actions {
+    gap: var(--space-2);
+  }
+
+  .site-header__actions .icon-btn {
+    width: auto;
+    gap: var(--space-2);
+    text-decoration: none;
+    padding-inline: var(--space-3);
+    grid-auto-flow: column;
+    color: var(--text);
+  }
+
+  .site-header__actions .icon-btn svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .site-header__label {
+    display: inline;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-right: -0.2em;
+  }
+
+  .site-header .cart-count {
+    position: static;
+    min-width: 20px;
+    height: 20px;
+    font-size: 0.64rem;
+    letter-spacing: 0;
+  }
+}
+
+/* Small laptops: same design, tighter tracking. */
+@media (min-width: 901px) and (max-width: 1180px) {
+  .site-header__bar {
+    gap: var(--space-4);
+  }
+
+  .site-header__nav {
+    gap: var(--space-5);
+    letter-spacing: 0.16em;
+  }
+
+  .site-header__nav a + a::before {
+    left: calc(var(--space-5) / -2 - 2px);
+  }
+}
+
+/* Tablet landscape: tighter still, icons without words. */
+@media (min-width: 901px) and (max-width: 1080px) {
+  .site-header__nav {
+    gap: var(--space-4);
+    letter-spacing: 0.12em;
+  }
+
+  .site-header__nav a + a::before {
+    left: calc(var(--space-4) / -2 - 2px);
+  }
+
+  /* Icons only here; the accessible names are unchanged. */
+  .site-header__label {
+    display: none;
+  }
+
+  .site-header__actions .icon-btn {
+    padding-inline: 0;
+    width: 44px;
+  }
+
+  .site-header__actions .icon-btn:has(.cart-count) {
+    width: auto;
+    padding-inline: var(--space-3);
+  }
+}
+
 @media (max-width: 900px) {
   .site-header__nav {
     display: none;

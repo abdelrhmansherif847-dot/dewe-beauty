@@ -4,7 +4,8 @@ import { m } from "motion/react";
 import { BagIcon } from "@/components/ui/icons";
 import { useCart } from "./cart-provider";
 
-export function CartButton() {
+/** `label` adds a visible word next to the icon; the header shows it on desktop only. */
+export function CartButton({ label }: { label?: string } = {}) {
   const { count, open, pulse, hydrated } = useCart();
   return (
     <button
@@ -24,6 +25,11 @@ export function CartButton() {
       >
         <BagIcon size={22} />
       </m.span>
+      {label && (
+        <span className="site-header__label" aria-hidden="true">
+          {label}
+        </span>
+      )}
       {hydrated && count > 0 && (
         <span className="cart-count" aria-hidden="true" data-testid="cart-count">
           {count > 99 ? "99+" : count}

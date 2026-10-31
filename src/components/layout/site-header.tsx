@@ -82,11 +82,17 @@ export function SiteHeader() {
         <div className="site-header__actions">
           <button type="button" className="icon-btn" aria-label="Search" onClick={() => setSearchOpen(true)}>
             <SearchIcon />
+            <span className="site-header__label" aria-hidden="true">
+              Search
+            </span>
           </button>
           <Link href="/account" className="icon-btn hide-mobile" aria-label="Your account">
             <UserIcon />
+            <span className="site-header__label" aria-hidden="true">
+              Account
+            </span>
           </Link>
-          <CartButton />
+          <CartButton label="Bag" />
         </div>
       </div>
 
