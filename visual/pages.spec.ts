@@ -48,6 +48,10 @@ const styleProps = [
 async function settle(page: Page) {
   await page.waitForLoadState("networkidle");
   await page.evaluate(() => document.fonts.ready);
+  // Same timing control as hero.spec.ts: the home hero's CSS entrance
+  // animation makes Chromium rasterise its buttons and fact list one of two
+  // ways at random. Only `.hero__fade` is affected, and only in this test page.
+  await page.addStyleTag({ content: ".hero__fade{animation:none!important}" });
   // Let finite entrance animations (CSS or Motion) finish, so the screenshot
   // shows the settled page rather than whatever frame Playwright cancels to.
   await page.waitForFunction(() =>
