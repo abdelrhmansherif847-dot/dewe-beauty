@@ -59,7 +59,7 @@ export function Drawer({
     const frame = requestAnimationFrame(() => {
       const panel = panelRef.current;
       const target = panel?.querySelector<HTMLElement>("[data-autofocus]") ?? panel?.querySelector<HTMLElement>(FOCUSABLE);
-      target?.focus();
+      target?.focus({ preventScroll: true });
     });
 
     const onKey = (event: KeyboardEvent) => {
@@ -89,7 +89,9 @@ export function Drawer({
       cancelAnimationFrame(frame);
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = overflow;
-      returnFocus.current?.focus?.();
+      // preventScroll: the trigger usually sits in the sticky header, and a plain
+      // focus() makes the browser honour scroll-padding-top and jump the page up.
+      returnFocus.current?.focus?.({ preventScroll: true });
     };
   }, [open]);
 

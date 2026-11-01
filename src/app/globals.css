@@ -862,6 +862,24 @@
   }
 }
 
+/* Narrowest desktop widths: smaller, tighter links so they keep a clear gap
+   before the centred wordmark (it was 16px at 901px). Wider widths unchanged. */
+@media (min-width: 901px) and (max-width: 980px) {
+  .site-header__bar {
+    gap: var(--space-6);
+  }
+
+  .site-header__nav {
+    gap: 0.875rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+  }
+
+  .site-header__nav a + a::before {
+    left: calc(0.875rem / -2 - 2px);
+  }
+}
+
 @media (max-width: 900px) {
   .site-header__nav {
     display: none;
@@ -938,17 +956,161 @@
   background: var(--surface);
 }
 
-.mobile-nav {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+/* --------------------------------------------------------------------------
+   Phone menu (Luxury Editorial). Opens from the header's menu button; the
+   shared drawer handles focus, Escape, the scrim and scroll locking.
+   -------------------------------------------------------------------------- */
+
+/* Comfortable touch target for the wordmark link in the menu head. */
+.menu__head .wordmark {
+  min-height: 44px;
+  justify-content: center;
 }
 
-.mobile-nav a {
+.menu__close {
+  width: auto;
+  grid-auto-flow: column;
+  gap: var(--space-2);
+  padding-inline: var(--space-3);
+  margin-right: calc(var(--space-3) * -1);
+}
+
+.menu__close-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  margin-right: -0.2em;
+  text-transform: uppercase;
+}
+
+.menu__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  padding-block: var(--space-6) var(--space-7);
+  background: linear-gradient(180deg, var(--ivory) 0%, color-mix(in srgb, var(--blush) 38%, var(--ivory)) 100%);
+}
+
+.menu__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.menu__eyebrow::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+}
+
+.menu__nav ul,
+.menu__links ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 64px;
+  border-bottom: 1px solid var(--hairline);
   font-family: var(--font-display);
-  font-size: var(--step-3);
+  font-size: clamp(1.7rem, 1.45rem + 1vw, 2.05rem);
+  line-height: 1.1;
+  color: var(--text);
   text-decoration: none;
-  padding-block: var(--space-2);
+  transition: color var(--dur-quick) var(--ease-out);
+}
+
+.menu__link svg {
+  flex: none;
+  color: var(--champagne);
+  transition:
+    color var(--dur-quick) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.menu__link:hover {
+  color: var(--accent-ink);
+}
+
+.menu__link:hover svg {
+  color: var(--accent);
+  transform: translateX(3px);
+}
+
+/* Current page: dusty rose, with a short rule so it is not shown by colour alone. */
+.menu__link[aria-current="page"] {
+  color: var(--accent);
+}
+
+.menu__link[aria-current="page"] svg {
+  color: var(--accent);
+}
+
+.menu__link[aria-current="page"] .menu__link-label::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  margin-right: 0.65rem;
+  vertical-align: middle;
+  background: currentColor;
+}
+
+.menu__links a {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  text-decoration: none;
+  transition: color var(--dur-quick) var(--ease-out);
+}
+
+.menu__links a:hover {
+  color: var(--text);
+}
+
+.menu__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+  background: color-mix(in srgb, var(--blush) 55%, var(--ivory));
+  border-top-color: color-mix(in srgb, var(--champagne) 75%, transparent);
+}
+
+.menu__tagline {
+  margin: 0;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  margin-right: -0.3em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.menu__arabic {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--text-soft);
 }
 
 .search-panel {
