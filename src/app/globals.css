@@ -1634,6 +1634,14 @@
   }
 }
 
+/* Default cards: the image and Quick add are siblings in this frame, so the
+   image's overflow clip and isolated stacking context can't trap the button.
+   Positioned without a z-index, so it is not a stacking context itself and
+   Quick add's z-index lifts it above the card link. */
+.product-card__frame {
+  position: relative;
+}
+
 .product-card__quick {
   position: absolute;
   left: var(--space-3);
@@ -1653,12 +1661,26 @@
   transform: none;
 }
 
+/* Touch screens: no hover, so the control sits under the details instead,
+   pinned to the bottom of the card so buttons line up across a row. */
 @media (hover: none) {
+  .product-card__frame {
+    display: contents;
+  }
+
   .product-card__quick {
+    position: static;
+    order: 1;
+    margin-top: auto;
     opacity: 1;
     transform: none;
-    position: static;
-    margin-top: calc(-1 * var(--space-1));
+  }
+
+  .product-card__quick .btn {
+    --btn-bg: transparent;
+    --btn-fg: var(--mocha-deep);
+    --btn-border: var(--hairline-strong);
+    min-height: 44px;
   }
 }
 

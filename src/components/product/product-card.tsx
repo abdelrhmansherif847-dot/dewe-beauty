@@ -41,13 +41,43 @@ export function ProductCard({
       variantPriceCents={product.minPriceCents}
       swatchHex={product.defaultVariantSwatch}
       currency={currency}
-      labelIncludesText={collection}
+      labelIncludesText
     />
   );
   const options =
     product.variantCount > 1
       ? `${product.variantCount} ${product.categorySlug === "lips" || product.categorySlug === "makeup" ? "shades" : "sizes"}`
       : null;
+
+  const media = (
+    <div className="product-card__media">
+      <div className="product-card__badges">
+        {level === "out" && <span className="badge badge--soldout">Sold out</span>}
+        {level === "low" && <span className="badge badge--low">Low stock</span>}
+        {onSale && level !== "out" && <span className="badge badge--sale">Offer</span>}
+        {product.isSample && <span className="badge badge--sample">Sample product</span>}
+      </div>
+      {product.imageUrl && !product.imageIsPlaceholder ? (
+        <Image
+          src={product.imageUrl}
+          alt={product.imageAlt ?? product.name}
+          fill
+          sizes={IMAGE_SIZES[variant]}
+        />
+      ) : (
+        <>
+          <ProductArt
+            slug={product.slug}
+            name={product.name}
+            brandName={product.brandName}
+            categorySlug={product.categorySlug}
+            instance={instance}
+          />
+          <PlaceholderTag />
+        </>
+      )}
+    </div>
+  );
 
   return (
     <article
@@ -56,34 +86,17 @@ export function ProductCard({
       style={{ "--reveal-index": index % (collection ? 3 : 4), "--card-bg": bg } as CSSProperties}
       data-testid="product-card"
     >
-      <div className="product-card__media">
-        <div className="product-card__badges">
-          {level === "out" && <span className="badge badge--soldout">Sold out</span>}
-          {level === "low" && <span className="badge badge--low">Low stock</span>}
-          {onSale && level !== "out" && <span className="badge badge--sale">Offer</span>}
-          {product.isSample && <span className="badge badge--sample">Sample product</span>}
+      {collection ? (
+        media
+      ) : (
+        /* Quick add sits beside the image, not inside it: inside, the image's
+           clipping hid it on touch screens and its stacking context put it
+           under the card link, so clicks opened the product page instead. */
+        <div className="product-card__frame">
+          {media}
+          <div className="product-card__quick">{quickAdd}</div>
         </div>
-        {product.imageUrl && !product.imageIsPlaceholder ? (
-          <Image
-            src={product.imageUrl}
-            alt={product.imageAlt ?? product.name}
-            fill
-            sizes={IMAGE_SIZES[variant]}
-          />
-        ) : (
-          <>
-            <ProductArt
-              slug={product.slug}
-              name={product.name}
-              brandName={product.brandName}
-              categorySlug={product.categorySlug}
-              instance={instance}
-            />
-            <PlaceholderTag />
-          </>
-        )}
-        {!collection && <div className="product-card__quick">{quickAdd}</div>}
-      </div>
+      )}
       {collection ? (
         <div className="product-card__body">
           <p className="product-card__brand">{product.brandName}</p>
