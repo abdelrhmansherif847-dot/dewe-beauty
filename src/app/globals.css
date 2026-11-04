@@ -2512,19 +2512,95 @@
   background-position: right 2px center;
 }
 
+/* Phones and tablets: a compact two-row toolbar.
+   Row 1: search and Filters. Row 2: product count and sort. */
 @media (max-width: 900px) {
-  .collection-toolbar__row .collection-count {
-    order: 2;
-    width: 100%;
+  .collection-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "search search filters"
+      "count sort sort";
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-3);
   }
 
+  .collection-toolbar__row,
   .collection-toolbar__actions {
-    width: 100%;
-    justify-content: space-between;
+    display: contents;
+  }
+
+  .collection-search {
+    grid-area: search;
+  }
+
+  .collection-search .input {
+    min-height: 44px;
+    padding-block: var(--space-2);
   }
 
   .collection-filters-toggle {
+    grid-area: filters;
     display: inline-flex;
+  }
+
+  .collection-count {
+    grid-area: count;
+  }
+
+  .collection-sort {
+    grid-area: sort;
+    justify-self: end;
+  }
+
+  /* Its own row only when filters are in use. */
+  .collection-active {
+    grid-column: 1 / -1;
+    padding-top: var(--space-1);
+  }
+}
+
+/* Phones and tablets: a tighter introduction so the first products appear
+   sooner. Same heading, eyebrow and index; one short sentence. */
+@media (max-width: 900px) {
+  .collection-intro__inner {
+    gap: var(--space-2);
+    padding-block: var(--space-3);
+  }
+
+  .collection-intro__heading {
+    margin-top: var(--space-1);
+  }
+
+  .collection-intro__dek {
+    line-height: 1.4;
+  }
+
+  .collection-intro__more {
+    display: none;
+  }
+
+  .collection-rail__list {
+    padding-block: 2px;
+  }
+
+  /* The index scrolls, which clips anything outside it: draw the focus ring
+     inside the pill instead. */
+  .collection-rail__item:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .collection-rail--skeleton {
+    height: 49px;
+  }
+
+  .collection-toolbar--skeleton {
+    height: 96px;
+  }
+
+  .collection-layout {
+    padding-top: var(--space-3);
   }
 }
 

@@ -152,3 +152,34 @@ test("the current category stays in view in the sideways index", async ({ page, 
   await expect(current).toHaveAttribute("aria-pressed", "true");
   await expect(current).toBeInViewport({ ratio: 1 });
 });
+
+test("on phones the Filters sheet filters by brand and stock, with removable tokens", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "desktop uses the Refine column");
+  await page.goto("/shop");
+  await expect(cards(page)).toHaveCount(12);
+
+  await page.getByRole("button", { name: /^Filters/ }).click();
+  const sheet = page.getByRole("dialog", { name: "Filters" });
+  await sheet.getByRole("button", { name: "Mochéra", exact: true }).click();
+  await expect(page).toHaveURL(/brand=mochera/);
+  await sheet.getByLabel("In stock only").click();
+  await expect(page).toHaveURL(/in_stock=1/);
+  await expect(sheet.getByRole("button", { name: "Show 2 results" })).toBeVisible();
+  await sheet.getByRole("button", { name: "Show 2 results" }).click();
+  await expect(sheet).toBeHidden();
+  await expect(page.getByRole("button", { name: "Filters (2)" })).toBeVisible();
+  await expect(cards(page)).toHaveCount(2);
+  for (const card of await cards(page).all()) await expect(card).toContainText("Mochéra");
+
+  await page.getByRole("button", { name: "Remove filter: In stock only" }).click();
+  await expect(page).not.toHaveURL(/in_stock=/);
+  await expect(cards(page)).toHaveCount(3);
+
+  await page.getByLabel("Search the shop").fill("glow");
+  await expect(page).toHaveURL(/q=glow/);
+  await expect(cards(page)).toHaveCount(1);
+  await expect(cards(page).first()).toContainText("Champagne Glow Drops");
+  await page.getByRole("button", { name: "Clear all" }).click();
+  await expect(page).toHaveURL(/\/shop$/);
+  await expect(cards(page)).toHaveCount(12);
+});

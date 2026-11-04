@@ -13,9 +13,14 @@ export function CollectionIntro() {
             Everything <em className="italic-accent">glow</em>
           </h1>
         </div>
+        {/* Phones and tablets show only the first clause, as one short
+            sentence, so the products start sooner. Desktop reads in full. */}
         <p className="collection-intro__dek">
-          Skincare, makeup, lips, fragrance and body care from every brand we carry, gathered in one place. Search,
-          filter by category or brand, and sort to find your everyday glow.
+          Skincare, makeup, lips, fragrance and body care from every brand we carry
+          <span className="collection-intro__more">
+            , gathered in one place. Search, filter by category or brand, and sort to find your everyday glow
+          </span>
+          .
         </p>
       </div>
     </header>
