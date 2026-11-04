@@ -2561,6 +2561,12 @@
   }
 }
 
+@media (min-width: 901px) {
+  .collection-intro__dek--short {
+    display: none;
+  }
+}
+
 /* Phones and tablets: a tighter introduction so the first products appear
    sooner. Same heading, eyebrow and index; one short sentence. */
 @media (max-width: 900px) {
@@ -2577,7 +2583,7 @@
     line-height: 1.4;
   }
 
-  .collection-intro__more {
+  .collection-intro__dek--full {
     display: none;
   }
 
