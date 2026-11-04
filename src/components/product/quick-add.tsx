@@ -17,12 +17,16 @@ export function QuickAdd({
   variantPriceCents,
   swatchHex,
   currency,
+  labelIncludesText = false,
 }: {
   product: ProductSummary;
   variantName: string | null;
   variantPriceCents: number;
   swatchHex: string | null;
   currency: string;
+  /** Start the accessible name with the visible words ("Quick add …"), so
+   *  speech-input users can say what they see (WCAG 2.5.3). */
+  labelIncludesText?: boolean;
 }) {
   const cart = useCart();
   const [added, setAdded] = useState(false);
@@ -65,7 +69,7 @@ export function QuickAdd({
         setAdded(true);
         setTimeout(() => setAdded(false), 1600);
       }}
-      aria-label={`Add ${product.name} to bag`}
+      aria-label={labelIncludesText ? `Quick add ${product.name} to bag` : `Add ${product.name} to bag`}
     >
       <m.span key={added ? "added" : "add"} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
         {added ? "Added ✓" : "Quick add"}

@@ -30,7 +30,7 @@ test("shop search, filter and sort update the results and the URL", async ({ pag
     await sheet.getByRole("button", { name: /Show/ }).click();
     await expect(sheet).toBeHidden();
   } else {
-    await page.getByLabel("Filters").getByRole("button", { name: "Lips", exact: true }).click();
+    await page.getByRole("group", { name: "Category" }).getByRole("button", { name: "Lips", exact: true }).click();
     await expect(page).toHaveURL(/category=lips/);
   }
   const cards = page.getByTestId("product-card");
