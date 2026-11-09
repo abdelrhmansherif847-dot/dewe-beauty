@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { addToBag } from "../e2e/fixtures";
+import { IMAGE, stableFullPageScreenshot } from "./full-page";
 
 const pages = [
   { name: "home", path: "/" },
@@ -83,7 +84,12 @@ for (const { name, path } of pages) {
   test(`${name} looks unchanged`, async ({ page }) => {
     await page.goto(path);
     await settle(page);
-    await expect.soft(page).toHaveScreenshot(`${name}.png`, { fullPage: true });
+    if (test.info().project.use.hasTouch) {
+      // Keeps (hover: none) for the whole capture; see full-page.ts.
+      expect.soft(await stableFullPageScreenshot(page)).toMatchSnapshot(`${name}.png`, IMAGE);
+    } else {
+      await expect.soft(page).toHaveScreenshot(`${name}.png`, { fullPage: true });
+    }
     expect(JSON.stringify(await computedStyles(page), null, 2)).toMatchSnapshot(
       `${name}.styles.json`,
     );

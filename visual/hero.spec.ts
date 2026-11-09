@@ -1,4 +1,5 @@
 import { test, expect, type Browser, type Page } from "@playwright/test";
+import { fullPageScreenshot, stableFullPageScreenshot } from "./full-page";
 
 /*
  * Dedicated checks for the Luxury Editorial hero (Aceternity spotlight).
@@ -51,12 +52,8 @@ async function openHome(page: Page) {
 
 async function capture(page: Page, css = "") {
   const tag = css ? await page.addStyleTag({ content: css }) : null;
-  const shot = await page.screenshot({
-    fullPage: true,
-    animations: "disabled",
-    caret: "hide",
-    scale: "css",
-  });
+  // Full page without losing the phone's touch profile (see full-page.ts).
+  const shot = await fullPageScreenshot(page);
   await tag?.evaluate((el) => (el as Element).remove());
   return shot;
 }
@@ -196,13 +193,21 @@ test("the lit hero matches the reviewed design", async ({ page }) => {
   const width = page.viewportSize()!.width;
   // Clip from the unscrolled full page: an element screenshot would scroll
   // and let the sticky header overlap the top of the hero.
-  await expect(page).toHaveScreenshot("hero.png", {
-    fullPage: true,
-    clip: { x: 0, y: hero.top, width, height: hero.bottom - hero.top },
-    animations: "disabled",
-    threshold: 0.01,
-    maxDiffPixels: 0,
-  });
+  const clip = { x: 0, y: hero.top, width, height: hero.bottom - hero.top };
+  if (test.info().project.use.hasTouch) {
+    expect(await stableFullPageScreenshot(page, { clip })).toMatchSnapshot("hero.png", {
+      threshold: 0.01,
+      maxDiffPixels: 0,
+    });
+  } else {
+    await expect(page).toHaveScreenshot("hero.png", {
+      fullPage: true,
+      clip,
+      animations: "disabled",
+      threshold: 0.01,
+      maxDiffPixels: 0,
+    });
+  }
 });
 
 test.describe("with reduced motion", () => {
