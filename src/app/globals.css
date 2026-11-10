@@ -3058,6 +3058,143 @@
   font-variant-numeric: lining-nums;
 }
 
+/* Phase 5.3a: product identity, price and facts (PDP only) */
+
+.pdp-identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pdp-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.pdp-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--text-soft);
+}
+
+.pdp-eyebrow__brand {
+  /* Taller hit area without adding visible space. */
+  display: inline-block;
+  padding-block: 0.75rem;
+  margin-block: -0.75rem;
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+
+.pdp-eyebrow__brand:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.pdp-eyebrow__sep {
+  color: var(--champagne);
+}
+
+.pdp-title {
+  font-size: clamp(2.4rem, 1.7rem + 2.4vw, 3.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.pdp-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.pdp-lede {
+  max-width: 38ch;
+  font-size: var(--step-1);
+  line-height: 1.45;
+  color: var(--text-soft);
+}
+
+.pdp-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pdp-badges:empty {
+  display: none;
+}
+
+.pdp-price {
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hairline);
+}
+
+.pdp-price__was {
+  font-size: 0.66em;
+}
+
+.pdp-price__saving {
+  align-self: center;
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.pdp-fact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.95rem;
+}
+
+.pdp-fact__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pdp-fact__swatch {
+  width: 18px;
+  height: 18px;
+}
+
+.pdp-reassure {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hairline);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.pdp-reassure__mark {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-top: 0.6em;
+  border-radius: 50%;
+  background: var(--champagne);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--champagne) 30%, transparent);
+}
+
 .variant-options {
   display: flex;
   flex-wrap: wrap;
