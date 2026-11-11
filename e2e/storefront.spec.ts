@@ -30,7 +30,7 @@ test("shop search, filter and sort update the results and the URL", async ({ pag
     await sheet.getByRole("button", { name: /Show/ }).click();
     await expect(sheet).toBeHidden();
   } else {
-    await page.getByLabel("Filters").getByRole("button", { name: "Lips", exact: true }).click();
+    await page.getByRole("group", { name: "Category" }).getByRole("button", { name: "Lips", exact: true }).click();
     await expect(page).toHaveURL(/category=lips/);
   }
   const cards = page.getByTestId("product-card");
@@ -100,6 +100,54 @@ test("mobile menu opens and navigates", async ({ page, isMobile }) => {
   await menu.getByRole("link", { name: "Brands" }).click();
   await expect(page).toHaveURL(/\/brands$/);
   await expect(menu).toBeHidden();
+});
+
+test("mobile menu is a labelled dialog that marks the current page and hands focus back", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, "mobile only");
+  await page.goto("/shop?category=skincare");
+  const toggle = page.getByRole("button", { name: "Open menu" });
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await toggle.click();
+  const menu = page.getByRole("dialog", { name: "Menu" });
+  await expect(menu).toBeVisible();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(menu.getByRole("button", { name: "Close menu" })).toBeFocused();
+
+  const shop = menu.getByRole("navigation", { name: "The shop" });
+  await expect(shop.getByRole("link")).toHaveText(["Shop all", "Skincare", "Makeup", "Brands", "The Edit"]);
+  await expect(shop.getByRole("link", { name: "Skincare" })).toHaveAttribute("aria-current", "page");
+  await expect(shop.locator("[aria-current]")).toHaveCount(1);
+  const help = menu.getByRole("navigation", { name: "Account and help" });
+  await expect(help.getByRole("link", { name: "Account and orders" })).toHaveAttribute("href", "/account");
+  await expect(help.getByRole("link", { name: "Delivery details" })).toHaveAttribute("href", "/help/delivery");
+
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(toggle).toBeFocused();
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+});
+
+test("closing a drawer leaves the page where it was", async ({ page, isMobile }) => {
+  await page.goto("/shop");
+  await expect(page.getByTestId("product-card").first()).toBeVisible();
+  await page.evaluate(() => window.scrollTo(0, 1200));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1200);
+  // Press the trigger where it sits, as a finger or mouse would, so the test
+  // tool does not scroll it into view first.
+  const opener = page.getByRole("button", { name: isMobile ? "Open menu" : "Search", exact: true });
+  const box = (await opener.boundingBox())!;
+  const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
+  if (isMobile) await page.touchscreen.tap(x, y);
+  else await page.mouse.click(x, y);
+  const drawer = page.getByRole("dialog", { name: isMobile ? "Menu" : "Search" });
+  await expect(drawer).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(drawer).toBeHidden();
+  await expect(opener).toBeFocused();
+  expect(await page.evaluate(() => window.scrollY)).toBe(1200);
 });
 
 test.describe("not found", () => {

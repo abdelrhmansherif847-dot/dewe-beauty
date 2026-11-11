@@ -98,71 +98,78 @@
    Base
    ========================================================================== */
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+/*
+ * Element defaults live in the `base` cascade layer so that Tailwind utilities
+ * (layer `utilities`, see src/styles/tailwind.css) can override them. Every
+ * unlayered rule below still wins over these, exactly as before.
+ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  scroll-padding-top: calc(var(--header-h) + 1rem);
-}
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--header-h) + 1rem);
+  }
 
-body {
-  margin: 0;
-  min-height: 100dvh;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans);
-  font-size: var(--step-0);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  overflow-x: clip;
-}
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
 
-img,
-svg,
-video {
-  display: block;
-  max-width: 100%;
-}
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
 
-a {
-  color: inherit;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-}
+  a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-  color: inherit;
-}
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
 
-button {
-  cursor: pointer;
-}
+  button {
+    cursor: pointer;
+  }
 
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  margin: 0;
-  text-wrap: balance;
-}
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
 
-p {
-  margin: 0;
-  text-wrap: pretty;
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
 }
 
 :focus-visible {
@@ -669,6 +676,210 @@ p {
   display: none;
 }
 
+/* Visible words beside the header icons; desktop only (see below). */
+.site-header__label {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Desktop header (Luxury Editorial). Everything here is scoped to wide
+   screens; the phone header and menu (max-width: 900px) are untouched.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 901px) {
+  :root {
+    --header-h: 84px;
+  }
+
+  .site-header {
+    background: color-mix(in srgb, var(--ivory) 92%, transparent);
+    border-bottom-color: var(--hairline);
+  }
+
+  .site-header[data-scrolled="true"] {
+    border-bottom-color: color-mix(in srgb, var(--champagne) 85%, transparent);
+    box-shadow: 0 14px 34px -30px rgb(62 43 38 / 0.55);
+  }
+
+  /* The side columns never shrink below their content, so the links can't wrap
+     or run into the wordmark on narrow laptops; at full width it stays centred. */
+  .site-header__bar {
+    grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+    gap: var(--space-6);
+  }
+
+  /* Navigation: small capitals, generous tracking, a champagne point between items. */
+  .site-header__nav {
+    gap: var(--space-6);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    white-space: nowrap;
+  }
+
+  .site-header__nav a {
+    position: relative;
+    padding-block: 6px;
+    color: var(--text-soft);
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-position: 50% 100%;
+    background-size: 0 1px;
+    background-repeat: no-repeat;
+    transition:
+      color var(--dur-quick) var(--ease-out),
+      background-size var(--dur-base) var(--ease-out);
+  }
+
+  .site-header__nav a + a::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: calc(var(--space-6) / -2 - 2px);
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--champagne);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .site-header__nav a:hover {
+    color: var(--text);
+    background-size: 100% 1px;
+  }
+
+  .site-header__nav a[aria-current="page"] {
+    color: var(--text);
+    background-size: 100% 1px;
+  }
+
+  /* Wordmark: a touch larger, with fine champagne rules either side of BEAUTY. */
+  .site-header .wordmark__name {
+    font-size: clamp(1.7rem, 1.2rem + 0.9vw, 2.15rem);
+    letter-spacing: 0.22em;
+    margin-right: -0.22em;
+  }
+
+  .site-header .wordmark__sub {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-right: 0;
+    margin-top: 0.45rem;
+    font-size: 0.54rem;
+  }
+
+  .site-header .wordmark__sub::before,
+  .site-header .wordmark__sub::after {
+    content: "";
+    width: 18px;
+    height: 1px;
+    background: var(--champagne);
+  }
+
+  /* The trailing letter-spacing of BEAUTY would push the right rule away. */
+  .site-header .wordmark__sub::after {
+    margin-left: -0.6em;
+  }
+
+  /* Utilities read as words, not a row of floating icons. */
+  .site-header__actions {
+    gap: var(--space-2);
+  }
+
+  .site-header__actions .icon-btn {
+    width: auto;
+    gap: var(--space-2);
+    text-decoration: none;
+    padding-inline: var(--space-3);
+    grid-auto-flow: column;
+    color: var(--text);
+  }
+
+  .site-header__actions .icon-btn svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .site-header__label {
+    display: inline;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-right: -0.2em;
+  }
+
+  .site-header .cart-count {
+    position: static;
+    min-width: 20px;
+    height: 20px;
+    font-size: 0.64rem;
+    letter-spacing: 0;
+  }
+}
+
+/* Small laptops: same design, tighter tracking. */
+@media (min-width: 901px) and (max-width: 1180px) {
+  .site-header__bar {
+    gap: var(--space-4);
+  }
+
+  .site-header__nav {
+    gap: var(--space-5);
+    letter-spacing: 0.16em;
+  }
+
+  .site-header__nav a + a::before {
+    left: calc(var(--space-5) / -2 - 2px);
+  }
+}
+
+/* Tablet landscape: tighter still, icons without words. */
+@media (min-width: 901px) and (max-width: 1080px) {
+  .site-header__nav {
+    gap: var(--space-4);
+    letter-spacing: 0.12em;
+  }
+
+  .site-header__nav a + a::before {
+    left: calc(var(--space-4) / -2 - 2px);
+  }
+
+  /* Icons only here; the accessible names are unchanged. */
+  .site-header__label {
+    display: none;
+  }
+
+  .site-header__actions .icon-btn {
+    padding-inline: 0;
+    width: 44px;
+  }
+
+  .site-header__actions .icon-btn:has(.cart-count) {
+    width: auto;
+    padding-inline: var(--space-3);
+  }
+}
+
+/* Narrowest desktop widths: smaller, tighter links so they keep a clear gap
+   before the centred wordmark (it was 16px at 901px). Wider widths unchanged. */
+@media (min-width: 901px) and (max-width: 980px) {
+  .site-header__bar {
+    gap: var(--space-6);
+  }
+
+  .site-header__nav {
+    gap: 0.875rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+  }
+
+  .site-header__nav a + a::before {
+    left: calc(0.875rem / -2 - 2px);
+  }
+}
+
 @media (max-width: 900px) {
   .site-header__nav {
     display: none;
@@ -745,17 +956,161 @@ p {
   background: var(--surface);
 }
 
-.mobile-nav {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+/* --------------------------------------------------------------------------
+   Phone menu (Luxury Editorial). Opens from the header's menu button; the
+   shared drawer handles focus, Escape, the scrim and scroll locking.
+   -------------------------------------------------------------------------- */
+
+/* Comfortable touch target for the wordmark link in the menu head. */
+.menu__head .wordmark {
+  min-height: 44px;
+  justify-content: center;
 }
 
-.mobile-nav a {
+.menu__close {
+  width: auto;
+  grid-auto-flow: column;
+  gap: var(--space-2);
+  padding-inline: var(--space-3);
+  margin-right: calc(var(--space-3) * -1);
+}
+
+.menu__close-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  margin-right: -0.2em;
+  text-transform: uppercase;
+}
+
+.menu__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  padding-block: var(--space-6) var(--space-7);
+  background: linear-gradient(180deg, var(--ivory) 0%, color-mix(in srgb, var(--blush) 38%, var(--ivory)) 100%);
+}
+
+.menu__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.menu__eyebrow::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+}
+
+.menu__nav ul,
+.menu__links ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 64px;
+  border-bottom: 1px solid var(--hairline);
   font-family: var(--font-display);
-  font-size: var(--step-3);
+  font-size: clamp(1.7rem, 1.45rem + 1vw, 2.05rem);
+  line-height: 1.1;
+  color: var(--text);
   text-decoration: none;
-  padding-block: var(--space-2);
+  transition: color var(--dur-quick) var(--ease-out);
+}
+
+.menu__link svg {
+  flex: none;
+  color: var(--champagne);
+  transition:
+    color var(--dur-quick) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.menu__link:hover {
+  color: var(--accent-ink);
+}
+
+.menu__link:hover svg {
+  color: var(--accent);
+  transform: translateX(3px);
+}
+
+/* Current page: dusty rose, with a short rule so it is not shown by colour alone. */
+.menu__link[aria-current="page"] {
+  color: var(--accent);
+}
+
+.menu__link[aria-current="page"] svg {
+  color: var(--accent);
+}
+
+.menu__link[aria-current="page"] .menu__link-label::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  margin-right: 0.65rem;
+  vertical-align: middle;
+  background: currentColor;
+}
+
+.menu__links a {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  text-decoration: none;
+  transition: color var(--dur-quick) var(--ease-out);
+}
+
+.menu__links a:hover {
+  color: var(--text);
+}
+
+.menu__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+  background: color-mix(in srgb, var(--blush) 55%, var(--ivory));
+  border-top-color: color-mix(in srgb, var(--champagne) 75%, transparent);
+}
+
+.menu__tagline {
+  margin: 0;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  margin-right: -0.3em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.menu__arabic {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--text-soft);
 }
 
 .search-panel {
@@ -826,7 +1181,20 @@ p {
     var(--ivory);
 }
 
+/* Campaign light (Aceternity Spotlight). Its layers carry their own z-index,
+   so this box isolates them and keeps them beneath the hero content. */
+.hero__light {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  isolation: isolate;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .hero__grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   gap: clamp(2rem, 1rem + 4vw, 6rem);
@@ -880,6 +1248,12 @@ p {
     opacity: 1;
     transform: none;
   }
+}
+
+/* The eyebrow is small text over the peach wash and the campaign light, so it
+   uses a slightly deeper rose ink than elsewhere to stay above 5:1. */
+.hero__copy .eyebrow {
+  color: color-mix(in srgb, var(--rose-ink) 85%, var(--mocha-deep));
 }
 
 .hero__arabic {
@@ -985,6 +1359,12 @@ p {
     bottom: 2.5rem;
     max-width: 200px;
     padding: 0.75rem 1rem;
+  }
+
+  /* On phones the copy sits right under the light, so it is dimmed to keep
+     small text at 5:1 or better. */
+  .hero__light {
+    opacity: 0.5;
   }
 }
 
@@ -1254,6 +1634,14 @@ p {
   }
 }
 
+/* Default cards: the image and Quick add are siblings in this frame, so the
+   image's overflow clip and isolated stacking context can't trap the button.
+   Positioned without a z-index, so it is not a stacking context itself and
+   Quick add's z-index lifts it above the card link. */
+.product-card__frame {
+  position: relative;
+}
+
 .product-card__quick {
   position: absolute;
   left: var(--space-3);
@@ -1273,12 +1661,26 @@ p {
   transform: none;
 }
 
+/* Touch screens: no hover, so the control sits under the details instead,
+   pinned to the bottom of the card so buttons line up across a row. */
 @media (hover: none) {
+  .product-card__frame {
+    display: contents;
+  }
+
   .product-card__quick {
+    position: static;
+    order: 1;
+    margin-top: auto;
     opacity: 1;
     transform: none;
-    position: static;
-    margin-top: calc(-1 * var(--space-1));
+  }
+
+  .product-card__quick .btn {
+    --btn-bg: transparent;
+    --btn-fg: var(--mocha-deep);
+    --btn-border: var(--hairline-strong);
+    min-height: 44px;
   }
 }
 
@@ -1778,6 +2180,649 @@ p {
 }
 
 /* ==========================================================================
+   Shop All collection (Luxury Editorial, Phase 5.1)
+   Scoped to /shop: every rule hangs off a collection-* class or the
+   product-card--collection variant, so other pages are unaffected.
+   ========================================================================== */
+
+.collection-intro {
+  background:
+    radial-gradient(55% 140% at 96% 0%, color-mix(in srgb, var(--peach) 42%, transparent) 0%, transparent 62%),
+    linear-gradient(180deg, var(--ivory) 0%, color-mix(in srgb, var(--blush) 52%, var(--ivory)) 100%);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.collection-intro__inner {
+  display: grid;
+  gap: var(--space-5);
+  padding-block: var(--space-7) var(--space-6);
+}
+
+.collection-intro__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.collection-intro__rule {
+  width: 40px;
+  height: 1px;
+  background: var(--champagne);
+}
+
+.collection-intro__heading {
+  margin-top: var(--space-3);
+  font-size: clamp(2.9rem, 1.9rem + 4.6vw, 6rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+.collection-intro__dek {
+  max-width: 44ch;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+@media (min-width: 901px) {
+  .collection-intro__inner {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: end;
+    column-gap: var(--space-8);
+    padding-block: var(--space-8) var(--space-7);
+  }
+
+  .collection-intro__dek {
+    padding-left: var(--space-5);
+    border-left: 1px solid var(--hairline);
+  }
+}
+
+/* Category index: the shared blush highlight comes from the adapted
+   Aceternity hover effect (src/components/aceternity/card-hover-effect.tsx). */
+.collection-rail {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.collection-rail__list {
+  display: flex;
+  gap: 2px;
+  width: max-content;
+  padding-block: var(--space-3);
+}
+
+.collection-rail__item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1;
+  color: var(--mocha-deep);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--dur-quick) var(--ease-out);
+}
+
+.collection-rail__item[aria-pressed="true"] {
+  font-style: italic;
+  color: var(--rose-ink);
+}
+
+.collection-rail__item[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 20px;
+  height: 1px;
+  background: var(--dusty-rose);
+  transform: translateX(-50%);
+}
+
+.collection-rail--skeleton {
+  height: 69px;
+}
+
+@media (min-width: 901px) {
+  .collection-rail__list {
+    flex-wrap: wrap;
+    width: auto;
+    margin-left: -18px;
+  }
+}
+
+/* Phones and tablets: the index scrolls sideways, edge to edge. */
+@media (max-width: 900px) {
+  .collection-rail {
+    margin-inline: calc(-1 * var(--gutter));
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent 100%);
+  }
+
+  .collection-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .collection-rail__list {
+    padding-inline: calc(var(--gutter) - 12px);
+  }
+
+  .collection-rail__item {
+    padding: 0 12px;
+  }
+}
+
+.collection-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  padding-block: var(--space-5) var(--space-8);
+}
+
+@media (min-width: 901px) {
+  .collection-layout {
+    grid-template-columns: 196px minmax(0, 1fr);
+    column-gap: var(--space-7);
+    align-items: start;
+    padding-top: var(--space-7);
+  }
+}
+
+@media (min-width: 1200px) {
+  .collection-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+    column-gap: var(--space-8);
+  }
+}
+
+/* Refine column (desktop). Phones use the Filters sheet instead. */
+.collection-refine {
+  display: none;
+}
+
+@media (min-width: 901px) {
+  .collection-refine {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-5));
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+}
+
+.collection-refine__title {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.collection-refine .filter-group legend {
+  font-size: 0.7rem;
+  color: var(--accent-ink);
+}
+
+.collection-refine .filter-list {
+  gap: 0;
+}
+
+.collection-refine .filter-list .chip {
+  gap: var(--space-3);
+  min-height: 40px;
+  margin-left: 0;
+  padding-inline: 0;
+  border-radius: 4px;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.collection-refine .filter-list .chip::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid var(--hairline-strong);
+  transition:
+    background-color var(--dur-quick) var(--ease-out),
+    border-color var(--dur-quick) var(--ease-out);
+}
+
+.collection-refine .filter-list .chip:hover {
+  color: var(--mocha-deep);
+}
+
+.collection-refine .filter-list .chip:hover::before {
+  border-color: var(--mocha-deep);
+}
+
+.collection-refine .filter-list .chip[aria-pressed="true"] {
+  background: transparent;
+  color: var(--mocha-deep);
+  font-weight: 700;
+}
+
+.collection-refine .filter-list .chip[aria-pressed="true"]::before {
+  background: var(--dusty-rose);
+  border-color: var(--dusty-rose);
+}
+
+/* Toolbar: search, count, filters (phones) and sort. */
+.collection-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.collection-toolbar--skeleton {
+  height: 112px;
+}
+
+.collection-search {
+  position: relative;
+}
+
+.collection-search svg {
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-soft);
+  pointer-events: none;
+}
+
+.collection-search .input {
+  min-height: 52px;
+  padding-left: 2rem;
+  border: 0;
+  border-bottom: 1px solid var(--hairline-strong);
+  border-radius: 0;
+  background: transparent;
+  font-size: 1rem;
+}
+
+.collection-search .input::placeholder {
+  color: var(--text-soft);
+  opacity: 1;
+}
+
+.collection-search .input:focus-visible {
+  border-color: var(--rose-ink);
+  box-shadow: none;
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.collection-toolbar__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.collection-count {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.collection-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.collection-filters-toggle,
+.collection-sort select {
+  min-height: 44px;
+  border: 0;
+  border-bottom: 1px solid var(--hairline-strong);
+  background-color: transparent;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--mocha-deep);
+  cursor: pointer;
+  transition: border-color var(--dur-quick) var(--ease-out);
+}
+
+.collection-filters-toggle {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 2px;
+}
+
+.collection-filters-toggle:hover,
+.collection-sort select:hover {
+  border-bottom-color: var(--mocha-deep);
+}
+
+.collection-sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.collection-sort label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.collection-sort select {
+  appearance: none;
+  padding: 0 1.5rem 0 2px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%233E2B26' stroke-width='1.4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 2px center;
+}
+
+/* Phones and tablets: a compact two-row toolbar.
+   Row 1: search and Filters. Row 2: product count and sort. */
+@media (max-width: 900px) {
+  .collection-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "search search filters"
+      "count sort sort";
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-3);
+  }
+
+  .collection-toolbar__row,
+  .collection-toolbar__actions {
+    display: contents;
+  }
+
+  .collection-search {
+    grid-area: search;
+  }
+
+  .collection-search .input {
+    min-height: 44px;
+    padding-block: var(--space-2);
+  }
+
+  .collection-filters-toggle {
+    grid-area: filters;
+    display: inline-flex;
+  }
+
+  .collection-count {
+    grid-area: count;
+  }
+
+  .collection-sort {
+    grid-area: sort;
+    justify-self: end;
+  }
+
+  /* Its own row only when filters are in use. */
+  .collection-active {
+    grid-column: 1 / -1;
+    padding-top: var(--space-1);
+  }
+}
+
+@media (min-width: 901px) {
+  .collection-intro__dek--short {
+    display: none;
+  }
+}
+
+/* Phones and tablets: a tighter introduction so the first products appear
+   sooner. Same heading, eyebrow and index; one short sentence. */
+@media (max-width: 900px) {
+  .collection-intro__inner {
+    gap: var(--space-2);
+    padding-block: var(--space-3);
+  }
+
+  .collection-intro__heading {
+    margin-top: var(--space-1);
+  }
+
+  .collection-intro__dek {
+    line-height: 1.4;
+  }
+
+  .collection-intro__dek--full {
+    display: none;
+  }
+
+  .collection-rail__list {
+    padding-block: 2px;
+  }
+
+  /* The index scrolls, which clips anything outside it: draw the focus ring
+     inside the pill instead. */
+  .collection-rail__item:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .collection-rail--skeleton {
+    height: 49px;
+  }
+
+  .collection-toolbar--skeleton {
+    height: 96px;
+  }
+
+  .collection-layout {
+    padding-top: var(--space-3);
+  }
+}
+
+/* Filters in use. */
+.collection-active {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.collection-active ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.collection-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px 0 16px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-size: 0.84rem;
+  color: var(--mocha-deep);
+  cursor: pointer;
+  transition: border-color var(--dur-quick) var(--ease-out);
+}
+
+.collection-token:hover {
+  border-color: var(--mocha-deep);
+}
+
+.collection-clear {
+  min-height: 40px;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .collection-token,
+  .collection-clear {
+    min-height: 44px;
+  }
+}
+
+/* Product grid and cards. */
+.product-grid.collection-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-7) var(--space-4);
+}
+
+@media (min-width: 600px) {
+  .product-grid.collection-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-5);
+  }
+}
+
+@media (min-width: 901px) {
+  .product-grid.collection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-6);
+  }
+}
+
+@media (min-width: 1200px) {
+  .product-grid.collection-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.product-card--collection {
+  gap: var(--space-4);
+}
+
+.product-card--collection .product-card__media {
+  border-radius: var(--radius-md);
+  transition: box-shadow var(--dur-base) var(--ease-out);
+}
+
+/* Hairline frame, like a print mount. */
+.product-card--collection .product-card__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--champagne) 55%, transparent);
+  pointer-events: none;
+}
+
+.product-card--collection:hover .product-card__media {
+  box-shadow: var(--shadow-soft);
+}
+
+.product-card--collection:hover .product-card__media img,
+.product-card--collection:hover .product-card__media svg {
+  transform: scale(1.03);
+}
+
+.product-card--collection .product-card__body {
+  flex: 1;
+  gap: var(--space-1);
+  container-type: inline-size;
+}
+
+.product-card--collection .product-card__name {
+  font-size: clamp(1.15rem, 1.05rem + 0.45vw, 1.5rem);
+  line-height: 1.15;
+}
+
+.product-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--hairline);
+}
+
+.product-card__detail {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
+/* Narrow cards (phones, three-up tablets): price, then detail, always stacked. */
+@container (max-width: 279px) {
+  .product-card__meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Pinned to the bottom, so buttons line up across a row. */
+.product-card__add {
+  margin-top: auto;
+  padding-top: var(--space-3);
+}
+
+.product-card__add .btn {
+  --btn-bg: transparent;
+  --btn-fg: var(--mocha-deep);
+  --btn-border: var(--hairline-strong);
+  min-height: 44px;
+}
+
+.product-card__add .btn:not([aria-disabled="true"]):hover {
+  --btn-border: var(--mocha-deep);
+  --btn-bg: color-mix(in srgb, var(--blush) 60%, transparent);
+}
+
+/* The placeholder label stays visible: nothing covers the image any more. */
+.product-card--collection:hover .placeholder-tag,
+.product-card--collection:focus-within .placeholder-tag {
+  opacity: 1;
+}
+
+.collection-note {
+  max-width: 64ch;
+  margin-top: var(--space-8);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--hairline);
+  font-size: 0.84rem;
+  color: var(--text-soft);
+}
+
+.collection-note strong {
+  font-weight: 600;
+  color: var(--mocha-deep);
+}
+
+.collection-empty {
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+/* ==========================================================================
    Empty, loading and error states
    ========================================================================== */
 
@@ -2011,6 +3056,143 @@ p {
   font-size: var(--step-2);
   font-family: var(--font-display);
   font-variant-numeric: lining-nums;
+}
+
+/* Phase 5.3a: product identity, price and facts (PDP only) */
+
+.pdp-identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pdp-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.pdp-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--text-soft);
+}
+
+.pdp-eyebrow__brand {
+  /* Taller hit area without adding visible space. */
+  display: inline-block;
+  padding-block: 0.75rem;
+  margin-block: -0.75rem;
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+
+.pdp-eyebrow__brand:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.pdp-eyebrow__sep {
+  color: var(--champagne);
+}
+
+.pdp-title {
+  font-size: clamp(2.4rem, 1.7rem + 2.4vw, 3.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.pdp-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.pdp-lede {
+  max-width: 38ch;
+  font-size: var(--step-1);
+  line-height: 1.45;
+  color: var(--text-soft);
+}
+
+.pdp-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pdp-badges:empty {
+  display: none;
+}
+
+.pdp-price {
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hairline);
+}
+
+.pdp-price__was {
+  font-size: 0.66em;
+}
+
+.pdp-price__saving {
+  align-self: center;
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.pdp-fact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.95rem;
+}
+
+.pdp-fact__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pdp-fact__swatch {
+  width: 18px;
+  height: 18px;
+}
+
+.pdp-reassure {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hairline);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.pdp-reassure__mark {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-top: 0.6em;
+  border-radius: 50%;
+  background: var(--champagne);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--champagne) 30%, transparent);
 }
 
 .variant-options {

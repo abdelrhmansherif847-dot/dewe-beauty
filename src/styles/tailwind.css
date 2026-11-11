@@ -1,0 +1,34 @@
+/*
+ * Tailwind CSS v4 foundation for the Luxury Editorial redesign.
+ *
+ * Deliberately isolated from the existing design system in globals.css:
+ * - Preflight (Tailwind's reset) is not imported; globals.css keeps its own.
+ * - Class detection is off for the app (`source(none)`) and on only for the
+ *   Aceternity components folder, so existing class names such as
+ *   `.container` never produce Tailwind utilities.
+ * - Brand colours are mapped into the theme with `inline`, so utilities such
+ *   as `bg-blush` read the live values from globals.css. Font tokens are
+ *   left out because Tailwind always emits --font-* variables, and names
+ *   like --font-display would shadow the ones in globals.css.
+ * Layers sit below the unlayered rules in globals.css, which therefore keep
+ * winning wherever both apply.
+ */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@source "../components/aceternity";
+
+@theme inline {
+  --color-blush: var(--blush);
+  --color-peach: var(--peach);
+  --color-ivory: var(--ivory);
+  --color-rose-mauve: var(--rose-mauve);
+  --color-dusty-rose: var(--dusty-rose);
+  --color-champagne: var(--champagne);
+  --color-mocha: var(--mocha);
+  --color-mocha-deep: var(--mocha-deep);
+  --color-rose-ink: var(--rose-ink);
+  --color-surface: var(--surface);
+}

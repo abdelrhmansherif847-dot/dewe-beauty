@@ -38,6 +38,15 @@ export function ProductPurchase({
   const max = Math.max(1, Math.min(variant.stock, settings.maxQuantityPerItem));
   const qty = Math.min(quantity, max);
   const isShade = product.variants.some((v) => v.swatchHex);
+  const single = product.variants.length === 1 ? product.variants[0] : null;
+  const singleLabel = single ? factLabel(single.name, single.swatchHex, product.category?.slug ?? null) : null;
+  // Display only: the same figures the price row already shows.
+  const savingCents =
+    variant.compareAtCents !== null && variant.compareAtCents > variant.priceCents
+      ? variant.compareAtCents - variant.priceCents
+      : 0;
+  const onOffer = savingCents > 0 && level !== "out";
+  const [titleLead, titleAccent] = splitTitle(product.name);
 
   useEffect(() => {
     const el = buttonRef.current;
@@ -80,25 +89,68 @@ export function ProductPurchase({
       />
 
       <div className="buy-box">
-        <div className="stack" style={{ "--stack-gap": "0.75rem" } as React.CSSProperties}>
-          <div className="cluster">
-            <Link href={`/brands/${product.brand.slug}`} className="eyebrow" style={{ textDecoration: "none" }}>
-              {product.brand.name}
-            </Link>
-            {product.isSample && <span className="badge badge--sample">Sample product</span>}
+        <div className="pdp-identity">
+          <div className="pdp-meta">
+            <p className="pdp-eyebrow">
+              <Link href={`/brands/${product.brand.slug}`} className="pdp-eyebrow__brand">
+                {product.brand.name}
+              </Link>
+              {product.category && (
+                <>
+                  <span className="pdp-eyebrow__sep" aria-hidden="true">
+                    ·
+                  </span>
+                  <span className="pdp-eyebrow__category">{product.category.name}</span>
+                </>
+              )}
+            </p>
+            {/* Same badge rules as the product card, applied to the chosen variant. */}
+            <div className="pdp-badges" data-testid="pdp-badges">
+              {level === "out" && <span className="badge badge--soldout">Sold out</span>}
+              {level === "low" && <span className="badge badge--low">Low stock</span>}
+              {onOffer && <span className="badge badge--sale">Offer</span>}
+              {product.isSample && <span className="badge badge--sample">Sample product</span>}
+            </div>
           </div>
-          <h1 className="buy-box__title">{product.name}</h1>
-          {product.shortDescription && <p className="lede">{product.shortDescription}</p>}
+          <h1 className="buy-box__title pdp-title">
+            {titleAccent ? (
+              <>
+                {titleLead} <em>{titleAccent}</em>
+              </>
+            ) : (
+              product.name
+            )}
+          </h1>
+          {product.shortDescription && <p className="pdp-lede">{product.shortDescription}</p>}
         </div>
 
-        <div className="buy-box__price" aria-live="polite">
-          <span data-testid="pdp-price">{formatMoney(variant.priceCents, settings.currency)}</span>
+        <div className="buy-box__price pdp-price" aria-live="polite" aria-atomic="true">
+          <span className="pdp-price__now">
+            <span className="visually-hidden">{variant.compareAtCents ? "Current price " : "Price "}</span>
+            <span data-testid="pdp-price">{formatMoney(variant.priceCents, settings.currency)}</span>
+          </span>
           {variant.compareAtCents && (
-            <span className="price-compare" aria-label={`was ${formatMoney(variant.compareAtCents, settings.currency)}`}>
+            <span className="price-compare pdp-price__was">
+              <span className="visually-hidden">Original price </span>
               {formatMoney(variant.compareAtCents, settings.currency)}
             </span>
           )}
+          {onOffer && (
+            <span className="pdp-price__saving" data-testid="pdp-saving">
+              Save {formatMoney(savingCents, settings.currency)}
+            </span>
+          )}
         </div>
+
+        {single && singleLabel && (
+          <p className="pdp-fact" data-testid="pdp-variant-fact">
+            <span className="pdp-fact__label">{singleLabel}:</span>{" "}
+            {single.swatchHex && (
+              <span className="swatch-dot pdp-fact__swatch" style={{ background: single.swatchHex }} aria-hidden="true" />
+            )}
+            <span className="pdp-fact__value">{single.name}</span>
+          </p>
+        )}
 
         {product.variants.length > 1 && (
           <fieldset className="filter-group">
@@ -157,10 +209,10 @@ export function ProductPurchase({
           </button>
         </div>
 
-        <div className="note">
-          <span aria-hidden="true">●</span>
+        <p className="pdp-reassure">
+          <span className="pdp-reassure__mark" aria-hidden="true" />
           <span>Pay in cash when your order arrives. Prices and stock are confirmed again when you place the order.</span>
-        </div>
+        </p>
 
         {children}
       </div>
@@ -180,4 +232,25 @@ export function ProductPurchase({
       )}
     </div>
   );
+}
+
+const MEASURE = /^\d+(?:[.,]\d+)?\s*(?:ml|l|g|kg|oz|fl\.?\s?oz)$/i;
+
+/**
+ * How a lone variant is described. Swatches and shade-led categories read as
+ * a shade, measured amounts as a size; anything else gets a neutral label so
+ * the page never claims more than the data says.
+ */
+function factLabel(name: string, swatchHex: string | null, categorySlug: string | null): string {
+  if (swatchHex) return "Shade";
+  if (MEASURE.test(name.trim())) return "Size";
+  if (categorySlug === "lips" || categorySlug === "makeup") return "Shade";
+  return "Option";
+}
+
+/** The last word takes the editorial italic; the name itself is unchanged. */
+function splitTitle(name: string): [string, string | null] {
+  const i = name.trim().lastIndexOf(" ");
+  if (i <= 0) return [name, null];
+  return [name.slice(0, i), name.slice(i + 1)];
 }
