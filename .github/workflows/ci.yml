@@ -46,10 +46,16 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
-      - run: scripts/test-db.sh
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      # Runs the suite inside the same postgres:17 image the service already
+      # pulled, so psql matches the server and no apt mirror is needed.
+      # --network host reaches the service on localhost:5432 as before.
+      - name: Run database tests (psql 17 from the postgres image)
+        run: >-
+          docker run --rm --network host
+          -e DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+          -v "$GITHUB_WORKSPACE:/workspace:ro" -w /workspace
+          postgres:17
+          bash scripts/test-db.sh
 
   e2e:
     name: End-to-end (local Supabase)
